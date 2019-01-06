@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2016 Arx Libertatis Team (see the AUTHORS file)
+ * Copyright 2011-2019 Arx Libertatis Team (see the AUTHORS file)
  *
  * This file is part of Arx Libertatis.
  *
@@ -207,17 +207,15 @@ static long ObjectAddFace(EERIE_3DOBJ * obj, const EERIE_FACE * face, const EERI
 	
 	obj->facelist.push_back(*face);
 
-	obj->facelist.back().vid[0] = (unsigned short)f0;
-	obj->facelist.back().vid[1] = (unsigned short)f1;
-	obj->facelist.back().vid[2] = (unsigned short)f2;
+	obj->facelist.back().vid[0] = static_cast<unsigned short>(f0);
+	obj->facelist.back().vid[1] = static_cast<unsigned short>(f1);
+	obj->facelist.back().vid[2] = static_cast<unsigned short>(f2);
 	obj->facelist.back().texid = 0;
 	
 	for(size_t i = 0; i < obj->texturecontainer.size(); i++) {
-		if(0 <= face->texid
-		   && (size_t)face->texid < srcobj->texturecontainer.size()
-		   && obj->texturecontainer[i] == srcobj->texturecontainer[face->texid]
-		) {
-			obj->facelist.back().texid = (short)i;
+		if(face->texid >= 0 && size_t(face->texid) < srcobj->texturecontainer.size()
+		   && obj->texturecontainer[i] == srcobj->texturecontainer[face->texid]) {
+			obj->facelist.back().texid = short(i);
 			break;
 		}
 	}

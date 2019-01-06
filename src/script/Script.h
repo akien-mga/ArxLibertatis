@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2016 Arx Libertatis Team (see the AUTHORS file)
+ * Copyright 2011-2018 Arx Libertatis Team (see the AUTHORS file)
  *
  * This file is part of Arx Libertatis.
  *
@@ -427,7 +427,7 @@ public:
 	static ScriptEventName parse(const std::string & name);
 	
 	ScriptMessage getId() const { return m_id; }
-	const std::string getName() const { return m_name; }
+	const std::string & getName() const { return m_name; }
 	
 	std::string toString() const;
 	

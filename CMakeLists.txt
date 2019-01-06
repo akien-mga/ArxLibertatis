@@ -2,8 +2,8 @@ project(ArxLibertatis)
 
 cmake_minimum_required(VERSION 2.8.3)
 
-if(CMAKE_VERSION VERSION_GREATER 3.7)
-	cmake_policy(VERSION 3.7)
+if(CMAKE_VERSION VERSION_GREATER 3.12)
+	cmake_policy(VERSION 3.12)
 else()
 	cmake_policy(VERSION ${CMAKE_VERSION})
 endif()
@@ -83,6 +83,14 @@ option(DEBUG_EXTRA "Expensive debug options" OFF)
 option(SET_WARNING_FLAGS "Adjust compiler warning flags" ON)
 option(SET_NOISY_WARNING_FLAGS "Enable noisy compiler warnings" OFF)
 option(SET_OPTIMIZATION_FLAGS "Adjust compiler optimization flags" ON)
+suboption(USE_LDGOLD "Use the Gold linker" BOOL ${SET_OPTIMIZATION_FLAGS})
+suboption(FASTLINK "Optimize (incremental) linking speed" BOOL ${DEVELOPER})
+set(default_USE_LTO OFF)
+if(SET_OPTIMIZATION_FLAGS AND NOT FASTLINK)
+	set(default_USE_LTO ON)
+endif()
+suboption(USE_LTO "Use link-time code generation" BOOL ${default_USE_LTO})
+	
 
 suboption(CXX_STD_VERSION "Maximum C++ standard version to enable" STRING 2017)
 if(DEVELOPER OR CMAKE_BUILD_TYPE STREQUAL "Debug")
@@ -493,6 +501,12 @@ if(NOT Boost_VERSION VERSION_LESS 106200 AND Boost_VERSION VERSION_LESS 106300)
 		add_definitions("-DBOOST_NO_CXX14_CONSTEXPR")
 	endif()
 endif()
+# Boost 1.69 has warnings about deprecated headers when using Boost.Random
+# https://github.com/boostorg/random/issues/49
+if(NOT Boost_VERSION VERSION_LESS 106900 AND Boost_VERSION VERSION_LESS 107000)
+	message("Suppressing warnings for deprecated headers used internally in Boost")
+	add_definitions("-DBOOST_ALLOW_DEPRECATED_HEADERS")
+endif()
 
 # glm
 find_package(GLM 0.9.5.0 REQUIRED)
@@ -580,6 +594,7 @@ endif()
 
 if(NOT CXX_STD_VERSION LESS 2011)
 	enable_cxx_version(${CXX_STD_VERSION})
+	set(ARX_HAVE_CXX11_LONG_LONG 1) # everyone has had this for ages
 	check_cxx11("alignas"                ARX_HAVE_CXX11_ALIGNAS            1900)
 	check_cxx11("alignof"                ARX_HAVE_CXX11_ALIGNOF            1900)
 	check_cxx11("auto"                   ARX_HAVE_CXX11_AUTO               1600)
@@ -593,7 +608,11 @@ if(NOT CXX_STD_VERSION LESS 2011)
 	check_cxx11("variadic templates"     ARX_HAVE_CXX11_VARIADIC_TEMPLATES 1800)
 	check_cxx11("thread_local"           ARX_HAVE_CXX11_THREADLOCAL        1900)
 	check_cxx11("default"                ARX_HAVE_CXX11_DEFAULT            1800)
-	set(ARX_HAVE_CXX11_LONG_LONG 1) # everyone has had this for ages
+	check_cxx11("final"                  ARX_HAVE_CXX11_FINAL              1700)
+	check_cxx17("[[nodiscard]]"          ARX_HAVE_CXX17_NODISCARD          1911)
+	if(WIN32)
+		check_cxx17("fstream(wchar*)" ARX_HAVE_CXX17_FSTREAM_WCHAR ALWAYS)
+	endif()
 endif()
 
 if(MSVC)
@@ -616,10 +635,6 @@ else(MSVC)
 	if(USE_STATIC_LIBS)
 		add_ldflag("-static-libstdc++")
 		add_ldflag("-static-libgcc")
-	endif()
-	
-	if(NOT CXX_STD_VERSION LESS 2011 AND WIN32)
-		add_definitions(-U__STRICT_ANSI__) # __argc and __argv
 	endif()
 	
 	# Don't expose internal symbols to the outside world by default
@@ -648,25 +663,32 @@ else(MSVC)
 	# Check compiler builtins & language extensions
 	# These are a symbols, so we can't use check_symbol_exists
 	if(NOT ARX_HAVE_CXX11_ALIGNAS)
-		check_builtin(ARX_HAVE_ATTRIBUTE_ALIGNED     "__attribute__((aligned(n)))")
+		check_builtin(ARX_HAVE_ATTRIBUTE_ALIGNED      "__attribute__((aligned(n)))")
 	endif()
-	check_builtin(ARX_HAVE_ATTRIBUTE_ALWAYS_INLINE "__attribute__((always_inline))")
-	check_builtin(ARX_HAVE_ATTRIBUTE_FORMAT_PRINTF "__attribute__((format(printf, i, j)))")
-	check_builtin(ARX_HAVE_BUILTIN_ASSUME          "__builtin_assume")
+	check_builtin(ARX_HAVE_ATTRIBUTE_ALLOC_ALIGN    "__attribute__((alloc_align(i)))")
+	check_builtin(ARX_HAVE_ATTRIBUTE_ALLOC_SIZE     "__attribute__((alloc_size(i)))")
+	check_builtin(ARX_HAVE_ATTRIBUTE_ALWAYS_INLINE  "__attribute__((always_inline))")
+	check_builtin(ARX_HAVE_ATTRIBUTE_ASSUME_ALIGNED "__attribute__((assume_aligned(n)))")
+	check_builtin(ARX_HAVE_ATTRIBUTE_FORMAT_PRINTF  "__attribute__((format(printf, i, j)))")
+	check_builtin(ARX_HAVE_ATTRIBUTE_MALLOC         "__attribute__((malloc))")
+	if(NOT ARX_HAVE_CXX17_NODISCARD)
+		check_builtin(ARX_HAVE_ATTRIBUTE_WARN_UNUSED_RESULT "__attribute__((warn_unused_result))")
+	endif()
+	check_builtin(ARX_HAVE_BUILTIN_ASSUME           "__builtin_assume")
 	if(NOT ARX_HAVE_BUILTIN_ASSUME)
-		check_builtin(ARX_HAVE_ASSUME                "__assume")
+		check_builtin(ARX_HAVE_ASSUME                 "__assume")
 	endif()
-	check_builtin(ARX_HAVE_BUILTIN_ASSUME_ALIGNED  "__builtin_assume_aligned")
-	check_builtin(ARX_HAVE_BUILTIN_TRAP            "__builtin_trap")
-	check_builtin(ARX_HAVE_BUILTIN_UNREACHABLE     "__builtin_unreachable")
+	check_builtin(ARX_HAVE_BUILTIN_ASSUME_ALIGNED   "__builtin_assume_aligned")
+	check_builtin(ARX_HAVE_BUILTIN_TRAP             "__builtin_trap")
+	check_builtin(ARX_HAVE_BUILTIN_UNREACHABLE      "__builtin_unreachable")
 	if(NOT ARX_HAVE_CXX11_ALIGNOF)
-		check_builtin(ARX_HAVE_GCC_ALIGNOF           "__alignof__")
+		check_builtin(ARX_HAVE_GCC_ALIGNOF            "__alignof__")
 	endif()
 	if(NOT ARX_HAVE_CXX11_THREADLOCAL)
-		check_builtin(ARX_HAVE_GCC_THREADLOCAL       "__thread")
+		check_builtin(ARX_HAVE_GCC_THREADLOCAL        "__thread")
 	endif()
 	if(NOT ARX_HAVE_CXX11_DECLTYPE)
-		check_builtin(ARX_HAVE_GCC_TYPEOF            "__typeof__")
+		check_builtin(ARX_HAVE_GCC_TYPEOF             "__typeof__")
 	endif()
 	
 	if(WIN32)
@@ -985,8 +1007,8 @@ set(GRAPHICS_SOURCES
 	src/graphics/font/FontCache.cpp
 	src/graphics/image/Image.cpp
 	src/graphics/image/ImageColorKey.cpp
+	src/graphics/image/ImageSave.cpp
 	src/graphics/image/stb_image.cpp
-	src/graphics/image/stb_image_write.cpp
 	src/graphics/particle/Particle.cpp
 	src/graphics/particle/ParticleEffects.cpp
 	src/graphics/particle/ParticleManager.cpp
@@ -1294,7 +1316,7 @@ else()
 	# This means the Boost.Filesystem ABI depends on what C++ version was used
 	# to compile the library - check for that!
 	check_compile(boost_filesystem_abi_matches
-		"${CXX11_CHECK_DIR}/boostfs-cxx11-scoped_enum.cpp"
+		"${CXX_CHECK_DIR}/boostfs-cxx11-scoped_enum.cpp"
 		"scoped enum" "Boost ABI"
 		"${Boost_LIBRARIES}"
 		"mismatch, fixing"
@@ -1902,6 +1924,9 @@ if(NOT (ARX_HAVE_NANOSLEEP OR WIN32))
 endif()
 if(NOT (ARX_HAVE_CLOCK_GETTIME OR WIN32 OR ARX_HAVE_MACH_CLOCK))
 	message(SEND_ERROR "Need either clock_gettime or WIN32 or mach clock_get_time.")
+endif()
+if(WIN32 AND NOT ARX_HAVE_CXX17_FSTREAM_WCHAR)
+	message(WARNING "Missing support for Unicode file paths")
 endif()
 
 # Check for consistent configuration between SDL and libepoxy/GLEW

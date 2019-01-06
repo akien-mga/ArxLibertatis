@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2017 Arx Libertatis Team (see the AUTHORS file)
+ * Copyright 2011-2018 Arx Libertatis Team (see the AUTHORS file)
  *
  * This file is part of Arx Libertatis.
  *
@@ -261,9 +261,9 @@ public:
 		bool group = false;
 		HandleFlags("gfinrz") {
 			group = test_flag(flg, 'g');
-			sendto |= (flg & flag('f')) ? SEND_FIX : (SendTargets)0;
-			sendto |= (flg & flag('i')) ? SEND_ITEM : (SendTargets)0;
-			sendto |= (flg & flag('n')) ? SEND_NPC : (SendTargets)0;
+			sendto |= (flg & flag('f')) ? SEND_FIX : SendTargets(0);
+			sendto |= (flg & flag('i')) ? SEND_ITEM : SendTargets(0);
+			sendto |= (flg & flag('n')) ? SEND_NPC : SendTargets(0);
 			radius = test_flag(flg, 'r');
 			zone = test_flag(flg, 'z');
 		}
@@ -839,7 +839,7 @@ public:
 
 } // anonymous namespace
 
-static const std::string getName() {
+static std::string getName() {
 	return "timer";
 }
 
@@ -870,8 +870,8 @@ void timerCommand(const std::string & name, Context & context) {
 		return;
 	}
 	
-	long count = (long)context.getFloatVar(command);
-	long interval = (long)context.getFloat();
+	long count = long(context.getFloatVar(command));
+	long interval = long(context.getFloat());
 	
 	if(!mili) {
 		// Seconds → millisecons

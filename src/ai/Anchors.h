@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2017 Arx Libertatis Team (see the AUTHORS file)
+ * Copyright 2011-2018 Arx Libertatis Team (see the AUTHORS file)
  *
  * This file is part of Arx Libertatis.
  *
@@ -56,25 +56,19 @@ struct BackgroundData;
 struct Cylinder;
 class Entity;
 
-enum AnchorFlag {
-	ANCHOR_FLAG_BLOCKED = 1 << 3
-};
-DECLARE_FLAGS(AnchorFlag, AnchorFlags)
-DECLARE_FLAGS_OPERATORS(AnchorFlags)
-
 struct ANCHOR_DATA {
 	
-	Vec3f pos;
-	AnchorFlags flags;
 	std::vector<long> linked;
+	Vec3f pos;
 	float radius;
 	float height;
+	bool blocked;
 	
 	ANCHOR_DATA()
 		: pos(0.f)
-		, flags(0)
 		, radius(0)
 		, height(0)
+		, blocked(false)
 	{ }
 	
 };
@@ -84,7 +78,7 @@ struct ANCHOR_DATA {
  */
 void AnchorData_ClearAll(BackgroundData * eb);
 
-void ANCHOR_BLOCK_By_IO(Entity * io, long status);
+void ANCHOR_BLOCK_By_IO(Entity * io, bool blocked);
 void ANCHOR_BLOCK_Clear();
 
 #endif // ARX_AI_ANCHORS_H

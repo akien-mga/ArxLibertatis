@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2016 Arx Libertatis Team (see the AUTHORS file)
+ * Copyright 2011-2018 Arx Libertatis Team (see the AUTHORS file)
  *
  * This file is part of Arx Libertatis.
  *
@@ -88,6 +88,7 @@ SDL2Window::SDL2Window()
 	, m_glcontext(NULL)
 	, m_input(NULL)
 	, m_minimizeOnFocusLost(AlwaysEnabled)
+	, m_allowScreensaver(AlwaysDisabled)
 	, m_gamma(1.f)
 	, m_gammaOverridden(false)
 {
@@ -117,12 +118,23 @@ SDL2Window::~SDL2Window() {
 	
 }
 
+#ifndef SDL_HINT_VIDEO_ALLOW_SCREENSAVER // SDL 2.0.2+
+#define SDL_HINT_VIDEO_ALLOW_SCREENSAVER "SDL_VIDEO_ALLOW_SCREENSAVER"
+#endif
 #ifndef SDL_HINT_NO_SIGNAL_HANDLERS // SDL 2.0.4+
 #define SDL_HINT_NO_SIGNAL_HANDLERS "SDL_NO_SIGNAL_HANDLERS"
 #endif
 #ifndef SDL_HINT_MOUSE_FOCUS_CLICKTHROUGH // SDL 2.0.5+
 #define SDL_HINT_MOUSE_FOCUS_CLICKTHROUGH "SDL_MOUSE_FOCUS_CLICKTHROUGH"
 #endif
+
+static Window::MinimizeSetting getInitialSDLSetting(const char * hint, Window::MinimizeSetting def) {
+	const char * setting = SDL_GetHint(hint);
+	if(!setting) {
+		return def;
+	}
+	return (*setting == '0') ? Window::AlwaysDisabled : Window::AlwaysEnabled;
+}
 
 bool SDL2Window::initializeFramework() {
 	
@@ -132,16 +144,8 @@ bool SDL2Window::initializeFramework() {
 	
 	SDL_SetHint(SDL_HINT_MOUSE_FOCUS_CLICKTHROUGH, "1");
 	
-	const char * minimize = SDL_GetHint(SDL_HINT_VIDEO_MINIMIZE_ON_FOCUS_LOSS);
-	if(minimize) {
-		if(*minimize == '0') {
-			m_minimizeOnFocusLost = AlwaysDisabled;
-		} else {
-			m_minimizeOnFocusLost = AlwaysEnabled;
-		}
-	} else {
-		m_minimizeOnFocusLost = Enabled;
-	}
+	m_minimizeOnFocusLost = getInitialSDLSetting(SDL_HINT_VIDEO_MINIMIZE_ON_FOCUS_LOSS, Enabled);
+	m_allowScreensaver = getInitialSDLSetting(SDL_HINT_VIDEO_ALLOW_SCREENSAVER, Disabled);
 	
 	arx_assert_msg(s_mainWindow == NULL, "SDL only supports one window"); // TODO it supports multiple windows now!
 	arx_assert(m_displayModes.empty());
@@ -238,7 +242,7 @@ int SDL2Window::createWindowAndGLContext(const char * profile) {
 	windowFlags |= SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN;
 	
 	for(int msaa = m_maxMSAALevel; true; msaa--) {
-		bool lastTry = (msaa == 1);
+		bool lastTry = (msaa == 0);
 		
 		// Cleanup context and window from previous tries
 		if(m_glcontext) {
@@ -254,6 +258,10 @@ int SDL2Window::createWindowAndGLContext(const char * profile) {
 		
 		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, msaa > 1 ? 1 : 0);
 		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, msaa > 1 ? msaa : 0);
+		SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, msaa > 0 ? 24 : 16);
+		SDL_GL_SetAttribute(SDL_GL_RED_SIZE,   msaa > 0 ? 8 : 3);
+		SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, msaa > 0 ? 8 : 3);
+		SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE,  msaa > 0 ? 8 : 2);
 		
 		m_window = SDL_CreateWindow(m_title.c_str(), x, y, m_size.x, m_size.y, windowFlags);
 		if(!m_window) {
@@ -274,10 +282,10 @@ int SDL2Window::createWindowAndGLContext(const char * profile) {
 		}
 		
 		// Verify that the MSAA setting matches what was requested
-		int msaaEnabled, msaaValue;
-		SDL_GL_GetAttribute(SDL_GL_MULTISAMPLEBUFFERS, &msaaEnabled);
-		SDL_GL_GetAttribute(SDL_GL_MULTISAMPLESAMPLES, &msaaValue);
-		if(!lastTry) {
+		if(msaa > 1) {
+			int msaaEnabled, msaaValue;
+			SDL_GL_GetAttribute(SDL_GL_MULTISAMPLEBUFFERS, &msaaEnabled);
+			SDL_GL_GetAttribute(SDL_GL_MULTISAMPLESAMPLES, &msaaValue);
 			if(!msaaEnabled || msaaValue < msaa) {
 				continue;
 			}
@@ -297,7 +305,7 @@ int SDL2Window::createWindowAndGLContext(const char * profile) {
 			continue;
 		}
 		
-		return msaa;
+		return std::max(msaa, 1);
 	}
 	
 }
@@ -307,7 +315,6 @@ bool SDL2Window::initialize() {
 	arx_assert(!m_displayModes.empty());
 	
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 	
 	#if ARX_PLATFORM == ARX_PLATFORM_WIN32
 	// Used on Windows to prevent software opengl fallback.
@@ -396,6 +403,16 @@ bool SDL2Window::initialize() {
 				#endif
 				switch(info.subsystem) {
 					case ARX_SDL_SYSWM_X11: {
+						SDL_version ver;
+						SDL_GetVersion(&ver);
+						if(ver.major == 2 && ver.minor == 0 && ver.patch < 9) {
+							// Work around a bug causing dbus-daemon memory usage to continually rise while AL is running
+							// if the org.gnome.ScreenSaver service does not exist.
+							if(m_allowScreensaver != AlwaysDisabled && m_allowScreensaver != AlwaysEnabled) {
+								SDL_EnableScreenSaver();
+								m_allowScreensaver = AlwaysEnabled;
+							}
+						}
 						#if ARX_HAVE_GL_STATIC || !ARX_HAVE_DLSYM || !defined(RTLD_DEFAULT)
 						const bool haveGLX = ARX_HAVE_GLX;
 						#elif ARX_HAVE_EPOXY
@@ -750,6 +767,23 @@ std::string SDL2Window::getClipboardText() {
 
 void SDL2Window::setClipboardText(const std::string & text) {
 	SDL_SetClipboardText(text.c_str());
+}
+
+void SDL2Window::allowScreensaver(bool allowed) {
+	
+	if(m_allowScreensaver == AlwaysDisabled || m_allowScreensaver == AlwaysEnabled) {
+		return;
+	}
+	
+	MinimizeSetting setting = allowed ? Enabled : Disabled;
+	if(m_allowScreensaver != setting) {
+		if(allowed) {
+			SDL_EnableScreenSaver();
+		} else {
+			SDL_DisableScreenSaver();
+		}
+		m_allowScreensaver = setting;
+	}
 }
 
 InputBackend * SDL2Window::getInputBackend() {

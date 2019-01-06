@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 Arx Libertatis Team (see the AUTHORS file)
+ * Copyright 2014-2019 Arx Libertatis Team (see the AUTHORS file)
  *
  * This file is part of Arx Libertatis.
  *
@@ -1174,17 +1174,16 @@ void ActiveSpellsGui::ManageSpellIcon(SpellBase & spell, float intensity, bool f
 		}
 	}
 	
-	if(spell.m_type >= 0 && (size_t)spell.m_type < SPELL_TYPES_COUNT) {
-	
+	if(spell.m_type >= 0 && size_t(spell.m_type) < SPELL_TYPES_COUNT) {
 		ActiveSpellIconSlot slot;
 		slot.m_tc = spellicons[spell.m_type].tc;
 		slot.m_color = color;
 		slot.spellIndex = spell.m_thisHandle;
 		slot.m_flicker = flicker;
 		slot.m_abortable = (!flag && !(player.Interface & INTER_COMBATMODE));
-		
 		m_slots.push_back(slot);
 	}
+	
 }
 
 

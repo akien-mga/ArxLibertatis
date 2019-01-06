@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2016 Arx Libertatis Team (see the AUTHORS file)
+ * Copyright 2011-2018 Arx Libertatis Team (see the AUTHORS file)
  *
  * This file is part of Arx Libertatis.
  *
@@ -37,12 +37,13 @@
 #include "audio/AudioTypes.h"
 #include "audio/AudioResource.h"
 #include "math/Types.h"
+#include "platform/Platform.h"
 
 namespace audio {
 
 class OpenALSource;
 
-class OpenALBackend : public Backend {
+class OpenALBackend arx_final : public Backend {
 	
 public:
 	

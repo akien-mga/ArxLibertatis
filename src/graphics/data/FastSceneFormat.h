@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2017 Arx Libertatis Team (see the AUTHORS file)
+ * Copyright 2011-2018 Arx Libertatis Team (see the AUTHORS file)
  *
  * This file is part of Arx Libertatis.
  *
@@ -108,6 +108,10 @@ struct FAST_TEXTURE_CONTAINER {
 	s32 tc;
 	s32 temp;
 	char fic[256];
+};
+
+enum FastAnchorFlag {
+	FastAnchorFlagBlocked = 1 << 3
 };
 
 struct FAST_ANCHOR_DATA {

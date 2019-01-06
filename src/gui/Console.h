@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Arx Libertatis Team (see the AUTHORS file)
+ * Copyright 2016-2018 Arx Libertatis Team (see the AUTHORS file)
  *
  * This file is part of Arx Libertatis.
  *
@@ -30,6 +30,7 @@
 #include "game/GameTypes.h"
 #include "input/TextInput.h"
 #include "io/log/LogBackend.h"
+#include "platform/Platform.h"
 
 class Entity;
 
@@ -77,7 +78,7 @@ public:
 	
 };
 
-class ScriptConsole : protected BasicTextInput {
+class ScriptConsole arx_final : protected BasicTextInput {
 	typedef BasicTextInput  Base;
 	
 	static const size_t MaxSuggestions = 1000;

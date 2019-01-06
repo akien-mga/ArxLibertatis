@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2016 Arx Libertatis Team (see the AUTHORS file)
+ * Copyright 2011-2018 Arx Libertatis Team (see the AUTHORS file)
  *
  * This file is part of Arx Libertatis.
  *
@@ -91,22 +91,7 @@ static std::pair<res::path, bool> fixSoundPath(const std::string & str) {
 	// Remove irrelevant absolute path components
 	size_t sfx_pos = path.find("\\sfx\\");
 	if(sfx_pos != std::string::npos) {
-		path.erase(0, sfx_pos + 1);
-	}
-	
-	// I guess they changed their minds about language names
-	size_t uk_pos = path.find("\\uk\\");
-	if(uk_pos != std::string::npos) {
-		path.replace(uk_pos, 4, "\\english\\");
-	}
-	size_t fr_pos = path.find("\\fr\\");
-	if(fr_pos != std::string::npos) {
-		path.replace(fr_pos, 4, "\\francais\\");
-	}
-	
-	// Change the speech directory
-	if(boost::starts_with(path, "sfx\\speech\\")) {
-		path.erase(0, 4);
+		path.erase(0, sfx_pos + 5);
 	}
 	
 	// Remove hardcoded language for localised speech

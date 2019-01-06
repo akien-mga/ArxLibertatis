@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 Arx Libertatis Team (see the AUTHORS file)
+ * Copyright 2014-2019 Arx Libertatis Team (see the AUTHORS file)
  *
  * This file is part of Arx Libertatis.
  *
@@ -153,7 +153,7 @@ void ARX_INTERFACE_ManageOpenedBook_Finish(const Vec2f & mousePos, Rectf rect, f
 		if(!gui::necklace.runes[i])
 			continue;
 		
-		if(!player.hasRune((Rune)i)) {
+		if(!player.hasRune(Rune(i))) {
 			continue;
 		}
 		
@@ -218,7 +218,7 @@ void ARX_INTERFACE_ManageOpenedBook_Finish(const Vec2f & mousePos, Rectf rect, f
 					cursorSetInteraction();
 					
 					if(eeMouseDown1()) {
-						PlayerBookDrawRune((Rune)i);
+						PlayerBookDrawRune(Rune(i));
 					}
 				}
 			}

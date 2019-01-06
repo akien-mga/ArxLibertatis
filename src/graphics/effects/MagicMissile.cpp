@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2017 Arx Libertatis Team (see the AUTHORS file)
+ * Copyright 2011-2019 Arx Libertatis Team (see the AUTHORS file)
  *
  * This file is part of Arx Libertatis.
  *
@@ -83,8 +83,7 @@ CMagicMissile::CMagicMissile()
 	m_elapsed = m_duration + GameDurationMs(1);
 }
 
-CMagicMissile::~CMagicMissile() {
-}
+CMagicMissile::~CMagicMissile() { }
 
 void CMagicMissile::Create(const Vec3f & startPos, const Anglef & angles)
 {
@@ -165,33 +164,19 @@ void CMagicMissile::Render() {
 			newpos = arx::catmullRom(v1, v2, v3, v4, t);
 
 			if(!((fTrail - (i * iBezierPrecision + toto)) > iLength)) {
-				float c;
-
-				if(fTrail < iLength) {
-					c = 1.0f - ((fTrail - (i * iBezierPrecision + toto)) / fTrail);
+				
+				float fsize = 1.f - (fTrail - i * iBezierPrecision + toto) / std::min(fTrail, float(iLength));
+				float alpha = std::max(fsize - 0.2f, 0.2f);
+				Color color(m_trailColor * (glm::clamp(fsize + Random::getf(-0.1f, 0.1f), 0.f, 1.f) * alpha));
+				
+				if(fsize < 0.5f) {
+					fsize = fsize * 6.f;
 				} else {
-					c = 1.0f - ((fTrail - (i * iBezierPrecision + toto)) / (float)iLength);
+					fsize = (1.f - fsize + 0.5f) * 3.f;
 				}
-
-				float fsize = c;
-				float alpha = c - 0.2f;
-
-				if(alpha < 0.2f)
-					alpha = 0.2f;
-
-				c += Random::getf(-0.1f, 0.1f);
 				
-				c = glm::clamp(c, 0.f, 1.f);
-				
-				Color color(m_trailColor * (c * alpha));
-
-				if(fsize < 0.5f)
-					fsize = fsize * 2 * 3;
-				else
-					fsize = (1.0f - fsize + 0.5f) * 2 * (3 * 0.5f);
-
-				float fs = fsize * 6 + Random::getf(0.f, 0.3f);
-				float fe = fsize * 6 + Random::getf(0.f, 0.3f);
+				float fs = fsize * 6.f + Random::getf(0.f, 0.3f);
+				float fe = fsize * 6.f + Random::getf(0.f, 0.3f);
 				Draw3DLineTexNew(mat, lastpos, newpos, color, color, fs, fe);
 			}
 
@@ -226,9 +211,7 @@ void CMagicMissile::Render() {
 }
 
 
-MrMagicMissileFx::MrMagicMissileFx()
-	: CMagicMissile()
-{
+MrMagicMissileFx::MrMagicMissileFx() {
 	m_trailColor = Color3f(0.9f, 0.2f, 0.5f);
 	m_projectileColor = Color3f(1.f, 0.f, 0.2f);
 	tex_mm = NULL;

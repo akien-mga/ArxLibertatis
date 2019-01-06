@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2016 Arx Libertatis Team (see the AUTHORS file)
+ * Copyright 2011-2018 Arx Libertatis Team (see the AUTHORS file)
  *
  * This file is part of Arx Libertatis.
  *
@@ -25,13 +25,14 @@
 #include "graphics/opengl/OpenGLUtil.h"
 #include "graphics/texture/Texture.h"
 #include "graphics/texture/TextureStage.h"
+#include "platform/Platform.h"
 
 class OpenGLRenderer;
 class GLTextureStage;
 
 typedef boost::intrusive::list_base_hook<boost::intrusive::link_mode<boost::intrusive::auto_unlink> > GLTextureListHook;
 
-class GLTexture : public Texture, public GLTextureListHook {
+class GLTexture arx_final : public Texture, public GLTextureListHook {
 	
 public:
 	

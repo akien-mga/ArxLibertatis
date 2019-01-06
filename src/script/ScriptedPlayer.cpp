@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2017 Arx Libertatis Team (see the AUTHORS file)
+ * Copyright 2011-2018 Arx Libertatis Team (see the AUTHORS file)
  *
  * This file is part of Arx Libertatis.
  *
@@ -405,7 +405,7 @@ public:
 				ScriptWarning << "can only use 'specialfx player_appears' in IO context";
 				return Failed;
 			}
-			MakePlayerAppearsFX(io);
+			MakePlayerAppearsFX(*io);
 			
 		} else if(type == "heal") {
 			
@@ -547,7 +547,7 @@ public:
 		HandleFlags("df") {
 			if(flg & flag('d')) {
 				spflags |= SPELLCAST_FLAG_NOCHECKCANCAST;
-				duration = (long)context.getFloat();
+				duration = long(context.getFloat());
 				dur = true;
 			}
 			if(flg & flag('f')) {
@@ -555,7 +555,7 @@ public:
 			}
 		}
 		
-		long level = glm::clamp((long)context.getFloat(), 1l, 10l);
+		long level = glm::clamp(long(context.getFloat()), 1l, 10l);
 		
 		std::string spellname = context.getWord();
 		

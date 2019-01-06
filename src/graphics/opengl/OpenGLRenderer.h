@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2016 Arx Libertatis Team (see the AUTHORS file)
+ * Copyright 2011-2018 Arx Libertatis Team (see the AUTHORS file)
  *
  * This file is part of Arx Libertatis.
  *
@@ -26,10 +26,11 @@
 #include "graphics/opengl/GLTexture.h"
 #include "graphics/opengl/OpenGLUtil.h"
 #include "math/Rectangle.h"
+#include "platform/Platform.h"
 
 class GLTextureStage;
 
-class OpenGLRenderer : public Renderer {
+class OpenGLRenderer arx_final : public Renderer {
 	
 public:
 	
@@ -134,8 +135,7 @@ private:
 	RenderState m_glstate;
 	GLenum m_glcull;
 	
-	bool m_glscissor;
-	bool m_scissor;
+	Rect m_scissor;
 	
 	int m_MSAALevel;
 	bool m_hasMSAA;

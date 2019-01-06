@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2016 Arx Libertatis Team (see the AUTHORS file)
+ * Copyright 2011-2018 Arx Libertatis Team (see the AUTHORS file)
  *
  * This file is part of Arx Libertatis.
  *
@@ -489,6 +489,11 @@ std::string SDL1Window::getClipboardText() {
 void SDL1Window::setClipboardText(const std::string & text) {
 	// Clipboard not supported by SDL 1
 	ARX_UNUSED(text);
+}
+
+void SDL1Window::allowScreensaver(bool allowed) {
+	// Toggling screensaver not supported by SDL 1
+	ARX_UNUSED(allowed);
 }
 
 InputBackend * SDL1Window::getInputBackend() {

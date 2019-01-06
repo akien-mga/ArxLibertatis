@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2017 Arx Libertatis Team (see the AUTHORS file)
+ * Copyright 2011-2019 Arx Libertatis Team (see the AUTHORS file)
  *
  * This file is part of Arx Libertatis.
  *
@@ -465,7 +465,7 @@ ValueType getSystemVar(const script::Context & context, const std::string & name
 			
 			if(name == "^#playerdist") {
 				if(context.getEntity()) {
-					*lcontent = (long)fdist(player.pos, context.getEntity()->pos);
+					*lcontent = long(fdist(player.pos, context.getEntity()->pos));
 					return TYPE_LONG;
 				}
 			}
@@ -674,7 +674,7 @@ ValueType getSystemVar(const script::Context & context, const std::string & name
 				// TODO should max be inclusive or exclusive?
 				// if inclusive, use proper integer random, otherwise fix rnd()?
 				if(max[0]) {
-					float t = (float)atof(max);
+					float t = float(atof(max));
 					*fcontent = Random::getf(0.f, t);
 					return TYPE_FLOAT;
 				}
@@ -1577,7 +1577,7 @@ static bool Manage_Specific_RAT_Timer(SCR_TIMER * st) {
 		pos.y += io->physics.cyl.height * 0.5f;
 		
 		ARX_PARTICLES_Add_Smoke(pos, 3, 20);
-		AddRandomSmoke(io, 20);
+		AddRandomSmoke(*io, 20);
 		MakeCoolFx(io->pos);
 		io->show = SHOW_FLAG_IN_SCENE;
 		

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2017 Arx Libertatis Team (see the AUTHORS file)
+ * Copyright 2011-2019 Arx Libertatis Team (see the AUTHORS file)
  *
  * This file is part of Arx Libertatis.
  *
@@ -282,7 +282,7 @@ void ARX_PARTICLES_Spawn_Blood2(const Vec3f & pos, float dmgs, Color col, Entity
 		
 	} else {
 		if(isNpc) {
-			io->_npcdata->SPLAT_DAMAGES = (short)dmgs;
+			io->_npcdata->SPLAT_DAMAGES = short(dmgs);
 		}
 		ARX_PARTICLES_Spawn_Blood3(pos, dmgs, col, SPLAT_GROUND);
 		if(isNpc) {
@@ -349,28 +349,24 @@ void MakeCoolFx(const Vec3f & pos) {
 	PolyBoomAddScorch(pos);
 }
 
-void MakePlayerAppearsFX(Entity * io) {
-	MakeCoolFx(io->pos);
-	MakeCoolFx(io->pos);
+void MakePlayerAppearsFX(const Entity & io) {
+	MakeCoolFx(io.pos);
+	MakeCoolFx(io.pos);
 	AddRandomSmoke(io, 30);
-	ARX_PARTICLES_Add_Smoke(io->pos, 1 | 2, 20); // flag 1 = randomize pos
+	ARX_PARTICLES_Add_Smoke(io.pos, 1 | 2, 20); // flag 1 = randomize pos
 }
 
-void AddRandomSmoke(Entity * io, long amount) {
+void AddRandomSmoke(const Entity & io, long amount) {
 	
-	if(!io) {
-		return;
-	}
-	
-	for(long i = 0; i < amount; i++) {
+	for(size_t i = 0; i < size_t(amount); i++) {
 		
 		PARTICLE_DEF * pd = createParticle();
 		if(!pd) {
 			return;
 		}
 		
-		long vertex = Random::get(0, io->obj->vertexlist.size() - 1);
-		pd->ov = io->obj->vertexWorldPositions[vertex].v + arx::randomVec(-5.f, 5.f);
+		size_t vertex = Random::get(size_t(0), io.obj->vertexlist.size() - 1);
+		pd->ov = io.obj->vertexWorldPositions[vertex].v + arx::randomVec(-5.f, 5.f);
 		pd->siz = Random::getf(0.f, 8.f);
 		if(pd->siz < 4.f) {
 			pd->siz = 4.f;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2016 Arx Libertatis Team (see the AUTHORS file)
+ * Copyright 2011-2018 Arx Libertatis Team (see the AUTHORS file)
  *
  * This file is part of Arx Libertatis.
  *
@@ -77,7 +77,7 @@ class RenderState {
 		End = BlendDst + BlendSize
 	};
 	
-	// We coul use bitfields here instead but they are missing (an efficient) operator==.
+	// We could use bitfields here instead but they are missing (an efficient) operator==.
 	u32 m_state;
 	
 	template <size_t Offset, size_t Size>

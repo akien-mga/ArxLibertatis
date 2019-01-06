@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2016 Arx Libertatis Team (see the AUTHORS file)
+ * Copyright 2015-2019 Arx Libertatis Team (see the AUTHORS file)
  *
  * This file is part of Arx Libertatis.
  *
@@ -99,7 +99,7 @@ bool TextInputWidget::click() {
 	}
 	
 	int width = m_font->getTextSize(displayText).width();
-	int posx = int(m_rect.center().x - width / 2);
+	int posx = int(m_rect.center().x) - width / 2;
 	if(width > m_rect.width()) {
 		if(!m_editing) {
 			posx = int(m_rect.left);

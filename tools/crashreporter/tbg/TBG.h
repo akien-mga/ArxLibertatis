@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2016 Arx Libertatis Team (see the AUTHORS file)
+ * Copyright 2011-2018 Arx Libertatis Team (see the AUTHORS file)
  *
  * This file is part of Arx Libertatis.
  *
@@ -30,7 +30,7 @@ namespace http {
 	class Request;
 	class POSTRequest;
 	class Response;
-}
+} // namespace http
 
 namespace TBG {
 
@@ -53,7 +53,7 @@ public:
 		Arch_Other = -1
 	};
 	
-	explicit Server(const QString & adress, const std::string & userAgent);
+	explicit Server(const QString & serverAddress, const std::string & userAgent);
 	~Server();
 	
 	bool login(const QString & username, const QString & password);
@@ -70,7 +70,7 @@ public:
 	
 private:
 	
-	http::Response * wait(QFuture<http::Response *> future);
+	http::Response * wait(const QFuture<http::Response *> & future);
 	http::Response * get(const http::Request & request);
 	http::Response * post(const http::POSTRequest & request);
 	
@@ -84,6 +84,6 @@ private:
 	
 };
 
-}
+} // namespace TBG
 
 #endif // ARX_TOOLS_CRASHREPORTER_TBG_TBG_H

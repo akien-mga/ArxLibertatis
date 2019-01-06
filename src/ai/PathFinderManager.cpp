@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2017 Arx Libertatis Team (see the AUTHORS file)
+ * Copyright 2011-2019 Arx Libertatis Team (see the AUTHORS file)
  *
  * This file is part of Arx Libertatis.
  *
@@ -134,7 +134,7 @@ void PathFinderThread::queueRequest(const PATHFINDER_REQUEST & request) {
 void PathFinderThread::run() {
 	
 	BackgroundData * eb = ACTIVEBKG;
-	PathFinder pathfinder(eb->m_anchors.size(), &eb->m_anchors[0], g_staticLightsMax, (EERIE_LIGHT **)g_staticLights);
+	PathFinder pathfinder(eb->m_anchors.size(), &eb->m_anchors[0], g_staticLightsMax, g_staticLights);
 	
 	for(; !isStopRequested(); m_busy = false, sleep(PATHFINDER_UPDATE_INTERVAL)) {
 		

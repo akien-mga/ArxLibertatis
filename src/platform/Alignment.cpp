@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Arx Libertatis Team (see the AUTHORS file)
+ * Copyright 2015-2018 Arx Libertatis Team (see the AUTHORS file)
  *
  * This file is part of Arx Libertatis.
  *
@@ -33,7 +33,7 @@ namespace platform {
 
 #if ARX_HAVE_ALIGNED_MALLOC && ARX_HAVE_ALIGNED_FREE
 
-void * alloc_aligned(std::size_t alignment, std::size_t size) {
+arx_nodiscard void * alloc_aligned(std::size_t alignment, std::size_t size) {
 	// alignment needs to be a power of two
 	return _aligned_malloc(size, alignment);
 }
@@ -44,7 +44,7 @@ void free_aligned(void * ptr) {
 
 #elif ARX_HAVE_ALIGNED_ALLOC
 
-void * alloc_aligned(std::size_t alignment, std::size_t size) {
+arx_nodiscard void * alloc_aligned(std::size_t alignment, std::size_t size) {
 	
 	// alignment needs to be a power of two
 	// size needs to be a multiple of alignment
@@ -61,7 +61,7 @@ void free_aligned(void * ptr) {
 
 #elif ARX_HAVE_POSIX_MEMALIGN
 
-void * alloc_aligned(std::size_t alignment, std::size_t size) {
+arx_nodiscard void * alloc_aligned(std::size_t alignment, std::size_t size) {
 	
 	// alignment needs to be a power of two
 	// alignment needs to be a multiple of sizeof(void *)
@@ -79,7 +79,7 @@ void free_aligned(void * ptr) {
 
 #else
 
-void * alloc_aligned(std::size_t alignment, std::size_t size) {
+arx_nodiscard void * alloc_aligned(std::size_t alignment, std::size_t size) {
 	
 	if(alignment < GuaranteedAlignment) {
 		alignment = GuaranteedAlignment;
@@ -95,12 +95,14 @@ void * alloc_aligned(std::size_t alignment, std::size_t size) {
 	arx_assert(offset - 1 <= 0xff);
 	allocation[offset - 1] = static_cast<unsigned char>(offset - 1);
 	
-	return ptr = allocation + offset;
+	return allocation + offset;
 }
 
 void free_aligned(void * ptr) {
-	unsigned char * data = static_cast<unsigned char *>(ptr) - 1;
-	std::free(data - *data);
+	if(ptr) {
+		unsigned char * data = static_cast<unsigned char *>(ptr) - 1;
+		std::free(data - *data);
+	}
 }
 
 #endif

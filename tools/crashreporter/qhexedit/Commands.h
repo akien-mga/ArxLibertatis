@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2012 Arx Libertatis Team (see the AUTHORS file)
+ * Copyright 2011-2018 Arx Libertatis Team (see the AUTHORS file)
  *
  * This file is part of Arx Libertatis.
  *
@@ -50,7 +50,7 @@ class CharCommand : public QUndoCommand {
 public:
 	
 	enum { Id = 1234 };
-	enum Cmd {insert, remove, replace};
+	enum Cmd { Insert, Remove, Replace };
 	
 	CharCommand(XByteArray * xData, Cmd cmd, int charPos, char newChar,
 	            QUndoCommand * parent = 0);
@@ -79,8 +79,9 @@ class ArrayCommand : public QUndoCommand {
 	
 public:
 	
-	enum Cmd {insert, remove, replace};
-	ArrayCommand(XByteArray * xData, Cmd cmd, int baPos, QByteArray newBa = QByteArray(),
+	enum Cmd { Insert, Remove, Replace };
+	
+	ArrayCommand(XByteArray * xData, Cmd cmd, int baPos, const QByteArray & newBa = QByteArray(),
 	             int len = 0, QUndoCommand * parent = 0);
 	void undo();
 	void redo();

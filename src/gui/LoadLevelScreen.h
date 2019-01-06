@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Arx Libertatis Team (see the AUTHORS file)
+ * Copyright 2013-2018 Arx Libertatis Team (see the AUTHORS file)
  *
  * This file is part of Arx Libertatis.
  *
@@ -25,6 +25,6 @@ void progressBarSetTotal(float total);
 void progressBarAdvance(float delta = 1.f);
 
 void LoadLevelScreen();
-void LoadLevelScreen(long lev);
+void LoadLevelScreen(long num);
 
 #endif // ARX_GUI_LOADLEVELSCREEN_H

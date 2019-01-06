@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2016 Arx Libertatis Team (see the AUTHORS file)
+ * Copyright 2011-2018 Arx Libertatis Team (see the AUTHORS file)
  *
  * This file is part of Arx Libertatis.
  *
@@ -136,7 +136,11 @@ bool ErrorReport::GenerateReport(ErrorReport::IProgressNotifier * pProgressNotif
 	ErrorReport * report = this;
 	BOOST_SCOPE_EXIT((report)) {
 		// Allow the crashed process to exit
-		report->ReleaseApplicationLock();
+		try {
+			report->ReleaseApplicationLock();
+		} catch(...) {
+			qWarning("Could not terminate crashed process");
+		}
 	} BOOST_SCOPE_EXIT_END
 	
 	pProgressNotifier->taskStarted("Generating crash report", 3);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2017 Arx Libertatis Team (see the AUTHORS file)
+ * Copyright 2011-2018 Arx Libertatis Team (see the AUTHORS file)
  *
  * This file is part of Arx Libertatis.
  *
@@ -73,7 +73,7 @@ public:
 	ParticleSystem();
 	~ParticleSystem();
 	
-	void SetParams(const ParticleParams & app);
+	void SetParams(const ParticleParams & params);
 	
 	void SetPos(const Vec3f & pos);
 	

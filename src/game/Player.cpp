@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2017 Arx Libertatis Team (see the AUTHORS file)
+ * Copyright 2011-2019 Arx Libertatis Team (see the AUTHORS file)
  *
  * This file is part of Arx Libertatis.
  *
@@ -272,7 +272,7 @@ void ARX_PLAYER_ClickedOnTorch(Entity * io)
 		}
 
 		ARX_SOUND_PlaySFX(g_snd.TORCH_START);
-		player.torch_loop = ARX_SOUND_PlaySFX_loop(g_snd.TORCH_LOOP, NULL, 1.0F);
+		player.torch_loop = ARX_SOUND_PlaySFX_loop(g_snd.TORCH_LOOP, NULL, 1.f);
 		
 		RemoveFromAllInventories(io);
 		player.torch = io;
@@ -1813,53 +1813,7 @@ static void setPlayerPositionColor(){
 	}
 }
 
-void PlayerMovementIterate(float DelatTime);
-
-void ARX_PLAYER_Manage_Movement() {
-	
-	ARX_PROFILE_FUNC();
-	
-	// Is our player able to move ?
-	if(cinematicBorder.isActive() || BLOCK_PLAYER_CONTROLS || !entities.player())
-		return;
-
-	// Compute current player speedfactor
-	float speedfactor = entities.player()->basespeed + entities.player()->speed_modif;
-
-	if(speedfactor < 0)
-		speedfactor = 0;
-
-	// Compute time things
-	const float FIXED_TIMESTEP = 25.f;
-	const float MAX_FRAME_TIME = 200.f;
-
-	static float StoredTime = 0;
-
-	float DeltaTime = std::min(toMs(g_platformTime.lastFrameDuration()), MAX_FRAME_TIME);
-	DeltaTime = StoredTime + DeltaTime * speedfactor;
-	
-	if(player.jumpphase != NotJumping) {
-		while(DeltaTime > FIXED_TIMESTEP) {
-			/*
-			 * TODO: should be PlayerMovementIterate(FIXED_TIMESTEP);
-			 * However, jump forward movement is only applied the the first
-			 * iteration, so we need this to not completely break the jump
-			 * at lower framerates.
-			 * Should only cause minor differences at higher framerates.
-			 * Fix this once PlayerMovementIterate has been cleaned up!
-			 */
-			PlayerMovementIterate(DeltaTime);
-			DeltaTime -= FIXED_TIMESTEP;
-		}
-	} else {
-		PlayerMovementIterate(DeltaTime);
-		DeltaTime = 0;
-	}
-	
-	StoredTime = DeltaTime;
-}
-
-void PlayerMovementIterate(float DeltaTime) {
+static void PlayerMovementIterate(float DeltaTime) {
 	
 	float d = 0;
 	
@@ -2052,9 +2006,8 @@ void PlayerMovementIterate(float DeltaTime) {
 				} else if(levitate && !player.climbing) {
 					scale = 0.875f / 1000;
 				} else {
-					short idx = layer0.altidx_cur;
-					Vec3f mv = GetAnimTotalTranslate(layer0.cur_anim, idx);
-					AnimationDuration time = layer0.cur_anim->anims[idx]->anim_time;
+					Vec3f mv = GetAnimTotalTranslate(layer0.cur_anim, layer0.altidx_cur);
+					AnimationDuration time = layer0.cur_anim->anims[layer0.altidx_cur]->anim_time;
 					scale = glm::length(mv) / toMsf(time) * 0.0125f;
 				}
 			}
@@ -2308,6 +2261,50 @@ void PlayerMovementIterate(float DeltaTime) {
 	setPlayerPositionColor();
 }
 
+void ARX_PLAYER_Manage_Movement() {
+	
+	ARX_PROFILE_FUNC();
+	
+	// Is our player able to move ?
+	if(cinematicBorder.isActive() || BLOCK_PLAYER_CONTROLS || !entities.player())
+		return;
+
+	// Compute current player speedfactor
+	float speedfactor = entities.player()->basespeed + entities.player()->speed_modif;
+
+	if(speedfactor < 0)
+		speedfactor = 0;
+
+	// Compute time things
+	const float FIXED_TIMESTEP = 25.f;
+	const float MAX_FRAME_TIME = 200.f;
+
+	static float StoredTime = 0;
+
+	float DeltaTime = std::min(toMs(g_platformTime.lastFrameDuration()), MAX_FRAME_TIME);
+	DeltaTime = StoredTime + DeltaTime * speedfactor;
+	
+	if(player.jumpphase != NotJumping) {
+		while(DeltaTime > FIXED_TIMESTEP) {
+			/*
+			 * TODO: should be PlayerMovementIterate(FIXED_TIMESTEP);
+			 * However, jump forward movement is only applied the the first
+			 * iteration, so we need this to not completely break the jump
+			 * at lower framerates.
+			 * Should only cause minor differences at higher framerates.
+			 * Fix this once PlayerMovementIterate has been cleaned up!
+			 */
+			PlayerMovementIterate(DeltaTime);
+			DeltaTime -= FIXED_TIMESTEP;
+		}
+	} else {
+		PlayerMovementIterate(DeltaTime);
+		DeltaTime = 0;
+	}
+	
+	StoredTime = DeltaTime;
+}
+
 /*!
  * \brief Manage Player Death Visual
  */
@@ -2376,7 +2373,7 @@ void ARX_PLAYER_AddGold(Entity * gold) {
 	
 	arx_assert(gold->ioflags & IO_GOLD);
 	
-	ARX_PLAYER_AddGold(gold->_itemdata->price * std::max((short)1, gold->_itemdata->count));
+	ARX_PLAYER_AddGold(gold->_itemdata->price * std::max(short(1), gold->_itemdata->count));
 	
 	ARX_SOUND_PlayInterface(g_snd.GOLD);
 	
@@ -2411,9 +2408,9 @@ void ARX_PLAYER_AddBag() {
 		player.m_bags = 3;
 }
 
-bool ARX_PLAYER_CanStealItem(Entity * _io) {
-	return (_io->_itemdata->stealvalue > 0 && player.m_skillFull.stealth >= _io->_itemdata->stealvalue
-	        && _io->_itemdata->stealvalue < 100.f);
+bool ARX_PLAYER_CanStealItem(Entity * item) {
+	return (item->_itemdata->stealvalue > 0 && player.m_skillFull.stealth >= item->_itemdata->stealvalue
+	        && item->_itemdata->stealvalue < 100.f);
 }
 
 void ARX_PLAYER_Rune_Add_All() {

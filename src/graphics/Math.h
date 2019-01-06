@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2017 Arx Libertatis Team (see the AUTHORS file)
+ * Copyright 2011-2019 Arx Libertatis Team (see the AUTHORS file)
  *
  * This file is part of Arx Libertatis.
  *
@@ -78,7 +78,7 @@ inline bool In3DBBoxTolerance(const Vec3f & pos, const EERIE_3D_BBOX & bbox, con
 inline u8 clipByte255(int value) {
 	
 	// clamp larger values to 255
-	value |= (-(int)(value > 255));
+	value |= -int(value > 255);
 	value &= 255;
 	
 	return static_cast<u8>(value);
@@ -143,7 +143,7 @@ void GenerateMatrixUsingVector(glm::mat4x4 & matrix, const Vec3f & vect, float r
 
 // QUATERNION Funcs/Defs
 
-glm::quat Quat_Slerp(const glm::quat & from, glm::quat to, float t);
+glm::quat Quat_Slerp(const glm::quat & from, glm::quat to, float ratio);
 
 glm::quat QuatFromAngles(const Anglef & angle);
 glm::mat4 toRotationMatrix(const Anglef & angle);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2016 Arx Libertatis Team (see the AUTHORS file)
+ * Copyright 2011-2019 Arx Libertatis Team (see the AUTHORS file)
  *
  * This file is part of Arx Libertatis.
  *
@@ -644,7 +644,7 @@ aalError OpenALSource::updateBuffers() {
 	AL_CHECK_ERROR("getting processed buffer count")
 	arx_assert(nbuffersProcessed >= 0);
 	
-	ALint maxbuffers = (m_streaming ? (ALint)NBUFFERS : MAXLOOPBUFFERS);
+	ALint maxbuffers = (m_streaming ? ALint(NBUFFERS) : ALint(MAXLOOPBUFFERS));
 	arx_assert(nbuffersProcessed <= maxbuffers);
 	if(m_loadCount && nbuffersProcessed == maxbuffers) {
 		ALWarning << "buffer underrun detected";

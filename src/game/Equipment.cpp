@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2017 Arx Libertatis Team (see the AUTHORS file)
+ * Copyright 2011-2019 Arx Libertatis Team (see the AUTHORS file)
  *
  * This file is part of Arx Libertatis.
  *
@@ -222,7 +222,7 @@ static void applyTweak(EquipmentSlot equip, TweakType tw, const std::string & se
 		   && IsInSelection(io->obj, face.vid[2], sel)
 		) {
 			if(face.texid == textochange) {
-				face.texid = (short)mapidx;
+				face.texid = short(mapidx);
 			}
 		}
 	}

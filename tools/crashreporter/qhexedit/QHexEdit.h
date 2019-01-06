@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2014 Arx Libertatis Team (see the AUTHORS file)
+ * Copyright 2011-2018 Arx Libertatis Team (see the AUTHORS file)
  *
  * This file is part of Arx Libertatis.
  *
@@ -168,7 +168,7 @@ public:
 	QColor highlightingColor();
 	void setSelectionColor(QColor const & color);
 	QColor selectionColor();
-	void setOverwriteMode(bool readOnly);
+	void setOverwriteMode(bool overwriteMode);
 	bool overwriteMode();
 	void setReadOnly(bool readOnly);
 	bool isReadOnly();

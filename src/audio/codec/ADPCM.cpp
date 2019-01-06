@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2016 Arx Libertatis Team (see the AUTHORS file)
+ * Copyright 2011-2019 Arx Libertatis Team (see the AUTHORS file)
  *
  * This file is part of Arx Libertatis.
  *
@@ -133,7 +133,7 @@ aalError CodecADPCM::setPosition(size_t position) {
 	while(i) {
 		char buffer[256];
 		size_t nRead;
-		size_t to_read = std::min(i, (size_t)256);
+		size_t to_read = std::min(i, size_t(256));
 		if(aalError error = read(buffer, to_read, nRead)) {
 			return error;
 		}

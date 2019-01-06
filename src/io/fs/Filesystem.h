@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2016 Arx Libertatis Team (see the AUTHORS file)
+ * Copyright 2011-2018 Arx Libertatis Team (see the AUTHORS file)
  *
  * This file is part of Arx Libertatis.
  *
@@ -177,7 +177,7 @@ public:
 	 * Otherwise, \ref end() will return \c true and information about the first directory entry
 	 * can be queried using \ref name(), \ref is_directory() and \ref is_regular_file().
 	 */
-	explicit directory_iterator(const path & dir);
+	explicit directory_iterator(const path & p);
 	
 	~directory_iterator();
 	

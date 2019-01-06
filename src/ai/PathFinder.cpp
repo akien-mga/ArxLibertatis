@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2017 Arx Libertatis Team (see the AUTHORS file)
+ * Copyright 2011-2018 Arx Libertatis Team (see the AUTHORS file)
  *
  * This file is part of Arx Libertatis.
  *
@@ -61,14 +61,14 @@ ZeniMax Media Inc., Suite 120, Rockville, Maryland 20850 USA.
 #include "platform/Platform.h"
 #include "scene/Light.h"
 
-static const float MIN_RADIUS = 110.0f;
+static const float MIN_RADIUS = 110.f;
 
-const float PathFinder::HEURISTIC_MIN = 0.0f;
+const float PathFinder::HEURISTIC_MIN = 0.f;
 const float PathFinder::HEURISTIC_MAX = 0.5f;
 
 const float PathFinder::HEURISTIC_DEFAULT = 0.5f;
-const float PathFinder::RADIUS_DEFAULT = 0.0f;
-const float PathFinder::HEIGHT_DEFAULT = 0.0f;
+const float PathFinder::RADIUS_DEFAULT = 0.f;
+const float PathFinder::HEIGHT_DEFAULT = 0.f;
 
 class PathFinder::Node {
 	
@@ -205,7 +205,7 @@ bool PathFinder::move(NodeId from, NodeId to, Result & rlist, bool stealth) cons
 	}
 	
 	// Create start node and put it on open list
-	Node * node = new Node(from, NULL, 0.0f, 0.0f);
+	Node * node = new Node(from, NULL, 0.f, 0.f);
 	
 	// A* main loop
 	OpenNodeList open;
@@ -226,8 +226,7 @@ bool PathFinder::move(NodeId from, NodeId to, Result & rlist, bool stealth) cons
 		// Otherwise, generate child from current node.
 		BOOST_FOREACH(NodeId cid, map_d[nid].linked) {
 			
-			if((map_d[cid].flags & ANCHOR_FLAG_BLOCKED) || map_d[cid].height > m_height
-			   || map_d[cid].radius < m_radius) {
+			if(map_d[cid].blocked || map_d[cid].height > m_height || map_d[cid].radius < m_radius) {
 				continue;
 			}
 			
@@ -244,7 +243,7 @@ bool PathFinder::move(NodeId from, NodeId to, Result & rlist, bool stealth) cons
 			distance += node->getDistance();
 			
 			// Estimated cost to get from this node to the destination.
-			float remaining = (1.0f - m_heuristic) * fdist(map_d[cid].pos, map_d[to].pos);
+			float remaining = (1.f - m_heuristic) * fdist(map_d[cid].pos, map_d[to].pos);
 			
 			open.add(cid, node, distance, remaining);
 		}
@@ -259,7 +258,7 @@ bool PathFinder::move(NodeId from, NodeId to, Result & rlist, bool stealth) cons
 bool PathFinder::flee(NodeId from, const Vec3f & danger, float safeDistance,
                       Result & rlist, bool stealth) const {
 	
-	static const float FLEE_DISTANCE_COST = 130.0F;
+	static const float FLEE_DISTANCE_COST = 130.f;
 	
 	if(!closerThan(map_d[from].pos, danger, safeDistance)) {
 		rlist.push_back(from);
@@ -267,7 +266,7 @@ bool PathFinder::flee(NodeId from, const Vec3f & danger, float safeDistance,
 	}
 	
 	// Create start node and put it on open list
-	Node * node = new Node(from, NULL, 0.0f, 0.0f);
+	Node * node = new Node(from, NULL, 0.f, 0.f);
 	if(!node) {
 		return false;
 	}
@@ -291,8 +290,7 @@ bool PathFinder::flee(NodeId from, const Vec3f & danger, float safeDistance,
 		// Otherwise, generate child from current node.
 		BOOST_FOREACH(NodeId cid, map_d[nid].linked) {
 			
-			if((map_d[cid].flags & ANCHOR_FLAG_BLOCKED) || map_d[cid].height > m_height
-			   || map_d[cid].radius < m_radius) {
+			if(map_d[cid].blocked || map_d[cid].height > m_height || map_d[cid].radius < m_radius) {
 				continue;
 			}
 			
@@ -307,7 +305,7 @@ bool PathFinder::flee(NodeId from, const Vec3f & danger, float safeDistance,
 			}
 			
 			// Estimated cost to get from this node to the destination.
-			float remaining = std::max(0.0f, safeDistance - fdist(map_d[cid].pos, danger));
+			float remaining = std::max(0.f, safeDistance - fdist(map_d[cid].pos, danger));
 			remaining *= FLEE_DISTANCE_COST;
 			
 			open.add(cid, node, distance, remaining);
@@ -351,7 +349,7 @@ bool PathFinder::wanderAround(NodeId from, float aroundRadius, Result & rlist, b
 				arx_assert(map_d[next].linked[r] >= 0);
 				
 				NodeId nid = map_d[next].linked[r];
-				if((!(map_d[nid].flags & ANCHOR_FLAG_BLOCKED)) && !map_d[nid].linked.empty()
+				if(!map_d[nid].blocked && !map_d[nid].linked.empty()
 				   && (map_d[nid].height <= m_height) && (map_d[nid].radius >= m_radius)) {
 					next = nid;
 					break;
@@ -379,7 +377,7 @@ PathFinder::NodeId PathFinder::getNearestNode(const Vec3f & pos) const {
 	
 	for(size_t i = 0; i < map_s; i++) {
 		float dist = arx::distance2(map_d[i].pos, pos);
-		if(dist < distance && !map_d[i].linked.empty() && !(map_d[i].flags & ANCHOR_FLAG_BLOCKED)) {
+		if(dist < distance && !map_d[i].linked.empty() && !map_d[i].blocked) {
 			best = i;
 			distance = dist;
 		}
@@ -438,9 +436,9 @@ void PathFinder::buildPath(const Node & node, Result & rlist) {
 
 float PathFinder::getIlluminationCost(const Vec3f & pos) const {
 	
-	static const float STEALTH_LIGHT_COST = 300.0F;
+	static const float STEALTH_LIGHT_COST = 300.f;
 	
-	float cost = 0.0f;
+	float cost = 0.f;
 	
 	for(size_t i = 0; i < slight_c; i++) {
 		
@@ -456,7 +454,7 @@ float PathFinder::getIlluminationCost(const Vec3f & pos) const {
 			
 			float l_cost = STEALTH_LIGHT_COST;
 			
-			l_cost *= light.intensity * (light.rgb.r + light.rgb.g + light.rgb.b) * (1.0f / 3);
+			l_cost *= light.intensity * (light.rgb.r + light.rgb.g + light.rgb.b) * (1.f / 3);
 			
 			if(dist > light.fallstart) {
 				l_cost *= ((dist - light.fallstart) / (light.fallend - light.fallstart));

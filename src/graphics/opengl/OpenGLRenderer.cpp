@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2016 Arx Libertatis Team (see the AUTHORS file)
+ * Copyright 2011-2019 Arx Libertatis Team (see the AUTHORS file)
  *
  * This file is part of Arx Libertatis.
  *
@@ -51,8 +51,7 @@ OpenGLRenderer::OpenGLRenderer()
 	, m_maximumAnisotropy(1.f)
 	, m_maximumSupportedAnisotropy(1.f)
 	, m_glcull(GL_NONE)
-	, m_glscissor(false)
-	, m_scissor(false)
+	, m_scissor(Rect::ZERO)
 	, m_MSAALevel(0)
 	, m_hasMSAA(false)
 	, m_hasTextureNPOT(false)
@@ -265,9 +264,15 @@ void OpenGLRenderer::reinit() {
 			LogError << "OpenGL ES version 1.0 or newer required";
 		}
 	} else {
+		#if ARX_HAVE_EPOXY
+		if(!ARX_HAVE_GL_VER(1, 5) && (!ARX_HAVE_GL_VER(1, 4) || !ARX_HAVE_GL_EXT(ARB_vertex_buffer_object))) {
+			LogError << "OpenGL version 1.5 or newer or 1.4 + GL_ARB_vertex_buffer_object required";
+		}
+		#else
 		if(!ARX_HAVE_GL_VER(1, 5)) {
 			LogError << "OpenGL version 1.5 or newer required";
 		}
+		#endif
 	}
 	
 	if(isES) {
@@ -426,8 +431,6 @@ void OpenGLRenderer::reinit() {
 	
 	glEnable(GL_BLEND);
 	m_glstate.setBlend(BlendOne, BlendZero);
-	
-	m_glscissor = false;
 	
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	glPixelStorei(GL_PACK_ALIGNMENT, 1);
@@ -595,13 +598,24 @@ void OpenGLRenderer::SetViewport(const Rect & _viewport) {
 
 void OpenGLRenderer::SetScissor(const Rect & rect) {
 	
+	if(m_scissor == rect) {
+		return;
+	}
+	
 	if(rect.isValid()) {
-		m_scissor = true;
+		if(!m_scissor.isValid()) {
+			glEnable(GL_SCISSOR_TEST);
+		}
 		int height = mainApp->getWindow()->getSize().y;
 		glScissor(rect.left, height - rect.bottom, rect.width(), rect.height());
 	} else {
-		m_scissor = false;
+		if(m_scissor.isValid()) {
+			glDisable(GL_SCISSOR_TEST);
+		}
 	}
+	
+	m_scissor = rect;
+	
 }
 
 void OpenGLRenderer::Clear(BufferFlags bufferFlags, Color clearColor, float clearDepth, size_t nrects, Rect * rect) {
@@ -628,35 +642,36 @@ void OpenGLRenderer::Clear(BufferFlags bufferFlags, Color clearColor, float clea
 		#endif
 		{
 			// Not available in OpenGL ES
-			glClearDepth((GLclampd)clearDepth);
+			glClearDepth(GLclampd(clearDepth));
 		}
 		buffers |= GL_DEPTH_BUFFER_BIT;
 	}
 	
 	if(nrects) {
 		
-		arx_assert(!m_scissor);
-		
-		if(!m_glscissor) {
-			glEnable(GL_SCISSOR_TEST);
-			m_glscissor = true;
-		}
-		
-		int height = mainApp->getWindow()->getSize().y;
+		Rect scissor = m_scissor;
 		
 		for(size_t i = 0; i < nrects; i++) {
-			glScissor(rect[i].left, height - rect[i].bottom, rect[i].width(), rect[i].height());
+			
+			SetScissor(rect[i]);
+			
 			glClear(buffers);
+			
 		}
+		
+		SetScissor(scissor);
 		
 	} else {
 		
-		if(m_glscissor) {
+		if(m_scissor.isValid()) {
 			glDisable(GL_SCISSOR_TEST);
-			m_glscissor = false;
 		}
 		
 		glClear(buffers);
+		
+		if(m_scissor.isValid()) {
+			glEnable(GL_SCISSOR_TEST);
+		}
 		
 	}
 }
@@ -891,15 +906,6 @@ static const GLenum arxToGlBlendFactor[] = {
 };
 
 void OpenGLRenderer::flushState() {
-	
-	if(m_glscissor != m_scissor) {
-		if(m_scissor) {
-			glEnable(GL_SCISSOR_TEST);
-		} else {
-			glDisable(GL_SCISSOR_TEST);
-		}
-		m_glscissor = m_scissor;
-	}
 	
 	if(m_glstate != m_state) {
 		

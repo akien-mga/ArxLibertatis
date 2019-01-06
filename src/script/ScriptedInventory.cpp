@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2016 Arx Libertatis Team (see the AUTHORS file)
+ * Copyright 2011-2018 Arx Libertatis Team (see the AUTHORS file)
  *
  * This file is part of Arx Libertatis.
  *
@@ -249,7 +249,7 @@ class InventoryCommand : public Command {
 					ioo->_itemdata->price = static_cast<long>(count);
 				} else {
 					ioo->_itemdata->maxcount = 9999;
-					ioo->_itemdata->count = std::max(checked_range_cast<short>(count), (short)1);
+					ioo->_itemdata->count = std::max(checked_range_cast<short>(count), short(1));
 				}
 				
 			} else {
@@ -354,7 +354,7 @@ class InventoryCommand : public Command {
 					ioo->_itemdata->price = count;
 				} else {
 					ioo->_itemdata->maxcount = 9999;
-					ioo->_itemdata->count = std::max(checked_range_cast<short>(count), (short)1);
+					ioo->_itemdata->count = std::max(checked_range_cast<short>(count), short(1));
 				}
 			}
 			

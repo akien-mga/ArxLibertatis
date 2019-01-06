@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2016 Arx Libertatis Team (see the AUTHORS file)
+ * Copyright 2015-2018 Arx Libertatis Team (see the AUTHORS file)
  *
  * This file is part of Arx Libertatis.
  *
@@ -27,10 +27,11 @@
 #include "graphics/Color.h"
 #include "gui/widget/Widget.h"
 #include "input/TextInput.h"
+#include "platform/Platform.h"
 
 class Font;
 
-class TextInputWidget: public Widget, public BasicTextInput {
+class TextInputWidget arx_final : public Widget, public BasicTextInput {
 	
 	Font * m_font;
 	bool m_editing;

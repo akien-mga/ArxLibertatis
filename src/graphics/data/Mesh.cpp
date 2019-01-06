@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2017 Arx Libertatis Team (see the AUTHORS file)
+ * Copyright 2011-2019 Arx Libertatis Team (see the AUTHORS file)
  *
  * This file is part of Arx Libertatis.
  *
@@ -202,8 +202,8 @@ EERIEPOLY * CheckInPoly(const Vec3f & poss, float * needY)
 	if(pz <= 0 || pz >= ACTIVEBKG->m_size.y - 1 || px <= 0 || px >= ACTIVEBKG->m_size.x - 1)
 		return NULL;
 	
-	float rx = poss.x - ((float)px * g_backgroundTileSize.x);
-	float rz = poss.z - ((float)pz * g_backgroundTileSize.y);
+	float rx = poss.x - float(px) * g_backgroundTileSize.x;
+	float rz = poss.z - float(pz) * g_backgroundTileSize.y;
 	
 	
 	short minx;
@@ -824,13 +824,13 @@ static bool loadFastScene(const res::path & file, const char * data, const char 
 					ep2->color[kk] = Color::black.toRGBA();
 				}
 				
-				long to = (ep->type & POLY_QUAD) ? 4 : 3;
-				float div = 1.f / to;
+				size_t to = (ep->type & POLY_QUAD) ? 4 : 3;
+				float div = 1.f / float(to);
 				
 				ep2->center = Vec3f(0.f);
 				ep2->min = Vec3f(0.f);
 				ep2->max = Vec3f(0.f);
-				for(long h = 0; h < to; h++) {
+				for(size_t h = 0; h < to; h++) {
 					ep2->center += ep2->v[h].p;
 					if(h != 0) {
 						ep2->max = glm::max(ep2->max, ep2->v[h].p);
@@ -842,7 +842,7 @@ static bool loadFastScene(const res::path & file, const char * data, const char 
 				ep2->center *= div;
 				
 				float dist = 0.f;
-				for(int h = 0; h < to; h++) {
+				for(size_t h = 0; h < to; h++) {
 					float d = glm::distance(ep2->v[h].p, ep2->center);
 					dist = std::max(dist, d);
 				}
@@ -874,7 +874,7 @@ static bool loadFastScene(const res::path & file, const char * data, const char 
 		const FAST_ANCHOR_DATA * fad = fts_read<FAST_ANCHOR_DATA>(data, end);
 		
 		ANCHOR_DATA & anchor = ACTIVEBKG->m_anchors[i];
-		anchor.flags = AnchorFlags::load(fad->flags); // TODO save/load flags
+		anchor.blocked = (fad->flags & FastAnchorFlagBlocked) != 0;
 		anchor.pos = fad->pos.toVec3();
 		anchor.height = fad->height;
 		anchor.radius = fad->radius;

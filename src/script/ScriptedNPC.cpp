@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2016 Arx Libertatis Team (see the AUTHORS file)
+ * Copyright 2011-2018 Arx Libertatis Team (see the AUTHORS file)
  *
  * This file is part of Arx Libertatis.
  *
@@ -263,7 +263,7 @@ public:
 		if(detectvalue == "off") {
 			context.getEntity()->_npcdata->fDetect = -1;
 		} else {
-			context.getEntity()->_npcdata->fDetect = glm::clamp((int)context.getFloatVar(detectvalue), -1, 100);
+			context.getEntity()->_npcdata->fDetect = glm::clamp(int(context.getFloatVar(detectvalue)), -1, 100);
 		}
 		
 		return Success;
@@ -368,7 +368,7 @@ public:
 		
 		DebugScript(' ' << xpvalue);
 		
-		context.getEntity()->_npcdata->xpvalue = (long)xpvalue;
+		context.getEntity()->_npcdata->xpvalue = long(xpvalue);
 		
 		return Success;
 	}
@@ -520,7 +520,7 @@ public:
 			return Failed;
 		}
 		
-		ARX_DAMAGES_ForceDeath(t, context.getEntity());
+		ARX_DAMAGES_ForceDeath(*t, context.getEntity());
 		
 		return Success;
 	}

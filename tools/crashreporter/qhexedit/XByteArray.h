@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2012 Arx Libertatis Team (see the AUTHORS file)
+ * Copyright 2011-2018 Arx Libertatis Team (see the AUTHORS file)
  *
  * This file is part of Arx Libertatis.
  *
@@ -52,7 +52,7 @@ public:
 	void setAddressWidth(int width);
 	
 	QByteArray & data();
-	void setData(QByteArray data);
+	void setData(const QByteArray & data);
 	
 	bool dataChanged(int i);
 	QByteArray dataChanged(int i, int len);
@@ -65,7 +65,7 @@ public:
 	QByteArray & insert(int i, char ch);
 	QByteArray & insert(int i, const QByteArray & ba);
 	
-	QByteArray & remove(int pos, int len);
+	QByteArray & remove(int i, int len);
 	
 	QByteArray & replace(int index, char ch);
 	QByteArray & replace(int index, const QByteArray & ba);

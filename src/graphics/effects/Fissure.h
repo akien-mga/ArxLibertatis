@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2017 Arx Libertatis Team (see the AUTHORS file)
+ * Copyright 2015-2018 Arx Libertatis Team (see the AUTHORS file)
  *
  * This file is part of Arx Libertatis.
  *
@@ -75,7 +75,7 @@ private:
 	int iSize;
 	bool bIntro;
 	float sizeF;
-	float fSizeIntro;
+	int m_visibleNotches;
 	float tfRaysa[40];
 	float tfRaysb[40];
 	Vec3f va[40];
@@ -114,10 +114,9 @@ private:
 	int end;
 	int iSize;
 	bool bIntro;
-	float fOneOniSize;
 	
 	float sizeF;
-	float fSizeIntro;
+	int m_visibleNotches;
 	float tfRaysa[40];
 	float tfRaysb[40];
 	Vec3f va[40];

@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 Arx Libertatis Team (see the AUTHORS file)
+ * Copyright 2014-2018 Arx Libertatis Team (see the AUTHORS file)
  *
  * This file is part of Arx Libertatis.
  *
@@ -240,7 +240,7 @@ void MagicMissileSpell::Launch() {
 	
 	ARX_SOUND_PlaySFX(g_snd.SPELL_MM_CREATE, &startPos);
 	ARX_SOUND_PlaySFX(g_snd.SPELL_MM_LAUNCH, &startPos);
-	snd_loop = ARX_SOUND_PlaySFX_loop(g_snd.SPELL_MM_LOOP, &startPos, 1.0F);
+	snd_loop = ARX_SOUND_PlaySFX_loop(g_snd.SPELL_MM_LOOP, &startPos, 1.f);
 	
 	m_duration = lMax + GameDurationMs(1000);
 }

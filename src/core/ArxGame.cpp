@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2017 Arx Libertatis Team (see the AUTHORS file)
+ * Copyright 2011-2018 Arx Libertatis Team (see the AUTHORS file)
  *
  * This file is part of Arx Libertatis.
  *
@@ -1657,6 +1657,9 @@ void ArxGame::updateInput() {
 		}
 	}
 #endif
+	
+	m_MainWindow->allowScreensaver(!m_MainWindow->isFullScreen() && ARXmenu.mode() == Mode_MainMenu);
+	
 }
 
 extern int iHighLight;
@@ -1688,7 +1691,7 @@ void ArxGame::updateLevel() {
 		}
 		
 		if(entity->ignition > 0.f || (entity->ioflags & IO_FIERY))
-			ManageIgnition(entity);
+			ManageIgnition(*entity);
 		
 		// Highlight entity
 		if(entity == FlyingOverIO && !(entity->ioflags & IO_NPC)) {
@@ -1697,7 +1700,7 @@ void ArxGame::updateLevel() {
 			entity->highlightColor = Color3f::black;
 		}
 		
-		Cedric_ApplyLightingFirstPartRefactor(entity);
+		Cedric_ApplyLightingFirstPartRefactor(*entity);
 
 		float speedModifier = 0.f;
 
@@ -2031,6 +2034,10 @@ void ArxGame::render() {
 	
 	if(g_debugTriggers[1])
 		g_hudRoot.bookIconGui.requestFX();
+	
+	if(ARXmenu.mode() != Mode_MainMenu) {
+		Menu2_Close();
+	}
 	
 	if(ARXmenu.mode() != Mode_InGame) {
 		benchmark::begin(benchmark::Menu);

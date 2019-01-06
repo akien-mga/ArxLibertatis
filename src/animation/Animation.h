@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2016 Arx Libertatis Team (see the AUTHORS file)
+ * Copyright 2011-2018 Arx Libertatis Team (see the AUTHORS file)
  *
  * This file is part of Arx Libertatis.
  *
@@ -154,13 +154,16 @@ struct AnimLayer {
 	{}
 	
 	ANIM_HANDLE * cur_anim;
-	short altidx_cur; // idx to alternate anims...
+	u16 altidx_cur; // idx to alternate anims...
 	AnimationDuration ctime;
 	AnimUseType flags;
 	long lastframe;
 	float currentInterpolation;
 	long currentFrame;
 	
+	EERIE_ANIM * currentAltAnim() {
+		return cur_anim->anims[altidx_cur];
+	}
 };
 
 /*!
@@ -205,10 +208,10 @@ void setAnimation(Entity * entity, ANIM_HANDLE * animation,
  */
 void stopAnimation(Entity * entity, size_t layer = 0);
 
-short ANIM_GetAltIdx(ANIM_HANDLE * ah, long old);
+u16 ANIM_GetAltIdx(const ANIM_HANDLE & ah, u16 old);
 void ANIM_Set(AnimLayer & layer, ANIM_HANDLE * anim);
 
-Vec3f GetAnimTotalTranslate(ANIM_HANDLE * eanim, long alt_idx);
+Vec3f GetAnimTotalTranslate(ANIM_HANDLE * eanim, size_t alt_idx);
 
 void EERIE_ANIMMANAGER_ClearAll();
 void EERIE_ANIMMANAGER_PurgeUnused();

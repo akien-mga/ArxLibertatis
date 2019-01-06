@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2016 Arx Libertatis Team (see the AUTHORS file)
+ * Copyright 2011-2019 Arx Libertatis Team (see the AUTHORS file)
  *
  * This file is part of Arx Libertatis.
  *
@@ -214,7 +214,7 @@ long ARX_UNICODE_DrawTextInRect(Font * font, const Vec2f & pos, float maxx, cons
 		GRenderer->SetScissor(*pClipRect);
 	}
 
-	Rect rect((Rect::Num)pos.x, (Rect::Num)pos.y, (Rect::Num)maxx, Rect::Limits::max());
+	Rect rect(Rect::Num(pos.x), Rect::Num(pos.y), Rect::Num(maxx), Rect::Limits::max());
 	if(maxx == std::numeric_limits<float>::infinity()) {
 		rect.right = Rect::Limits::max();
 	}
@@ -230,8 +230,7 @@ long ARX_UNICODE_DrawTextInRect(Font * font, const Vec2f & pos, float maxx, cons
 }
 
 void UNICODE_ARXDrawTextCenter(Font * font, const Vec2f & pos, const std::string & str, Color col) {
-	s32 size = font->getTextSize(str).advance();
-	font->draw(Vec2i(pos.x - (size / 2), pos.y), str, col);
+	font->draw(Vec2i(pos) - Vec2i(font->getTextSize(str).advance() / 2, 0), str, col);
 }
 
 void UNICODE_ARXDrawTextCenteredScroll(Font * font, float x, float y, float x2, const std::string & str,

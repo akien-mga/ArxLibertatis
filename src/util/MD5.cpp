@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Arx Libertatis Team (see the AUTHORS file)
+ * Copyright 2017-2018 Arx Libertatis Team (see the AUTHORS file)
  *
  * This file is part of Arx Libertatis.
  *
@@ -22,6 +22,10 @@
 // any modifications are placed in the public domain
 
 #include "util/MD5.h"
+
+#ifdef _MSC_VER
+#include <intrin.h> // for _rotl8 and _rotl16
+#endif
 
 namespace util {
 
@@ -59,10 +63,10 @@ inline u64 rotl_fixed<u64>(u64 x, unsigned int y) {
 #endif
 
 void md5_transform::init(hash_word * state) {
-	state[0] = 0x67452301L;
-	state[1] = 0xefcdab89L;
-	state[2] = 0x98badcfeL;
-	state[3] = 0x10325476L;
+	state[0] = 0x67452301;
+	state[1] = 0xefcdab89;
+	state[2] = 0x98badcfe;
+	state[3] = 0x10325476;
 }
 
 void md5_transform::transform(hash_word * digest, const hash_word * data) {

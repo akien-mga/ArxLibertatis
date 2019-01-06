@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2017 Arx Libertatis Team (see the AUTHORS file)
+ * Copyright 2011-2019 Arx Libertatis Team (see the AUTHORS file)
  *
  * This file is part of Arx Libertatis.
  *
@@ -120,7 +120,7 @@ extern bool LOAD_N_ERASE;
 
 static bool ARX_CHANGELEVEL_Push_Index(long num);
 static bool ARX_CHANGELEVEL_PushLevel(long num, long newnum);
-static bool ARX_CHANGELEVEL_PopLevel(long num, bool reloadflag = false,
+static bool ARX_CHANGELEVEL_PopLevel(long instance, bool reloadflag = false,
                                      const std::string & target = std::string(), float angle = 0.f);
 static void ARX_CHANGELEVEL_Push_Globals();
 static void ARX_CHANGELEVEL_Pop_Globals();
@@ -1009,7 +1009,7 @@ static long ARX_CHANGELEVEL_Push_IO(const Entity * io, long level) {
 			}
 		}
 
-		if((size_t)ais.nb_linked > MAX_LINKED_SAVE) {
+		if(size_t(ais.nb_linked) > MAX_LINKED_SAVE) {
 			ais.nb_linked = MAX_LINKED_SAVE;
 		}
 
@@ -1814,7 +1814,7 @@ static Entity * ARX_CHANGELEVEL_Pop_IO(const std::string & idString, EntityInsta
 		io->weight = ais->weight;
 		io->locname = script::loadUnlocalized(boost::to_lower_copy(util::loadString(ais->locname)));
 		io->gameFlags = GameFlags::load(ais->gameFlags); // TODO save/load flags
-		io->material = (Material)ais->material; // TODO save/load enum
+		io->material = Material(ais->material); // TODO save/load enum
 		
 		// Script data
 		io->scriptload = ais->scriptload;
@@ -1910,12 +1910,12 @@ static Entity * ARX_CHANGELEVEL_Pop_IO(const std::string & idString, EntityInsta
 		for(size_t k = 0; k < MAX_ANIM_LAYERS; k++) {
 			AnimLayer & layer = io->animlayer[k];
 			
-			long nn = (long)ais->animlayer[k].cur_anim;
+			s32 nn = ais->animlayer[k].cur_anim;
 			if(nn == -1) {
 				layer.cur_anim = NULL;
 			} else {
 				layer.cur_anim = io->anims[nn];
-				if(layer.cur_anim && layer.altidx_cur >= short(layer.cur_anim->anims.size())) {
+				if(layer.cur_anim && layer.altidx_cur >= layer.cur_anim->anims.size()) {
 					LogWarning << "Out of bounds animation alternative index " << layer.altidx_cur << " for " << layer.cur_anim->path << ", resetting to 0";
 					layer.altidx_cur = 0;
 				}
@@ -2034,7 +2034,7 @@ static Entity * ARX_CHANGELEVEL_Pop_IO(const std::string & idString, EntityInsta
 				io->_npcdata->lifePool.max = as->maxlife;
 				io->_npcdata->manaPool.max = as->maxmana;
 				
-				io->_npcdata->movemode = (MoveMode)as->movemode; // TODO save/load enum
+				io->_npcdata->movemode = MoveMode(as->movemode); // TODO save/load enum
 				io->_npcdata->moveproblem = as->moveproblem;
 				io->_npcdata->reachedtarget = as->reachedtarget;
 				io->_npcdata->speakpitch = as->speakpitch;

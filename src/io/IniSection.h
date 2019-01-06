@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2016 Arx Libertatis Team (see the AUTHORS file)
+ * Copyright 2011-2018 Arx Libertatis Team (see the AUTHORS file)
  *
  * This file is part of Arx Libertatis.
  *
@@ -59,6 +59,11 @@ class IniSection {
 	 * All preceding space and trailing space / commens must already be removed.
 	 */
 	void addKey(const std::string & key, const std::string & value);
+	/*!
+	 * Set a key in the ini format (name=value or name="value")
+	 * All preceding space and trailing space / commens must already be removed.
+	 */
+	void setKey(const std::string & key, const std::string & value);
 	
 	friend class IniReader;
 	

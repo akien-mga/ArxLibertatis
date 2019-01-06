@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2017 Arx Libertatis Team (see the AUTHORS file)
+ * Copyright 2011-2018 Arx Libertatis Team (see the AUTHORS file)
  *
  * This file is part of Arx Libertatis.
  *
@@ -127,12 +127,12 @@ void PolyBoomAddScorch(const Vec3f & poss) {
 				continue;
 			}
 			
-			long nbvert = (ep.type & POLY_QUAD) ? 4 : 3;
+			size_t nbvert = (ep.type & POLY_QUAD) ? 4 : 3;
 			
 			float temp_uv1[4];
 			
 			bool dod = true;
-			for(long k = 0; k < nbvert; k++) {
+			for(size_t k = 0; k < nbvert; k++) {
 				float ddd = fdist(ep.v[k].p, poss);
 				if(ddd > BOOM_RADIUS) {
 					dod = false;
@@ -158,7 +158,7 @@ void PolyBoomAddScorch(const Vec3f & poss) {
 			pb.tolive = GameDurationMs(10000);
 			pb.timecreation = g_gameTime.now();
 			pb.rgb = Color3f::black;
-			for(int k = 0; k < nbvert; k++) {
+			for(size_t k = 0; k < nbvert; k++) {
 				pb.v[k] = pb.u[k] = temp_uv1[k];
 			}
 			pb.nbvert = short(nbvert);
@@ -283,11 +283,11 @@ void PolyBoomAddSplat(const Sphere & sp, const Color3f & col, long flags) {
 			if((ep->type & POLY_TRANS) && !(ep->type & POLY_WATER))
 				continue;
 			
-			long nbvert = (ep->type & POLY_QUAD) ? 4 : 3;
+			size_t nbvert = (ep->type & POLY_QUAD) ? 4 : 3;
 			
 			bool oki = false;
 			
-			for(long k = 0; k < nbvert; k++) {
+			for(size_t k = 0; k < nbvert; k++) {
 				
 				if(PointIn2DPolyXZ(&TheoricalSplat, ep->v[k].p.x, ep->v[k].p.z)
 				   && glm::abs(ep->v[k].p.y - py) < 100.f) {
@@ -334,7 +334,7 @@ void PolyBoomAddSplat(const Sphere & sp, const Color3f & col, long flags) {
 					pb.timecreation = now;
 					pb.rgb = col;
 					
-					for(int k = 0; k < nbvert; k++) {
+					for(size_t k = 0; k < nbvert; k++) {
 						
 						float vdiff = glm::abs(ep->v[k].p.y - RealSplatStart.y);
 						

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2016 Arx Libertatis Team (see the AUTHORS file)
+ * Copyright 2011-2018 Arx Libertatis Team (see the AUTHORS file)
  *
  * This file is part of Arx Libertatis.
  *
@@ -95,6 +95,6 @@ bool EERIE_PHYSICS_BOX_IsValidPosition(const Vec3f & pos);
 void EERIE_PHYSICS_BOX_Create(EERIE_3DOBJ * obj);
 void EERIE_PHYSICS_BOX_Release(EERIE_3DOBJ * obj);
 void EERIE_PHYSICS_BOX_Launch(EERIE_3DOBJ * obj, const Vec3f & pos, const Anglef & angle, const Vec3f & vect);
-void ARX_PHYSICS_BOX_ApplyModel(PHYSICS_BOX_DATA * pbox, float framediff, float rubber, Entity * source);
+void ARX_PHYSICS_BOX_ApplyModel(PHYSICS_BOX_DATA & pbox, float framediff, float rubber, Entity & source);
 
 #endif // ARX_PHYSICS_PHYSICS_H

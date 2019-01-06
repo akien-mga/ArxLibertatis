@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2017 Arx Libertatis Team (see the AUTHORS file)
+ * Copyright 2015-2019 Arx Libertatis Team (see the AUTHORS file)
  *
  * This file is part of Arx Libertatis.
  *
@@ -80,7 +80,7 @@ CRiseDead::CRiseDead()
 	, iSize(100)
 	, bIntro(true)
 	, sizeF(0)
-	, fSizeIntro(0.f)
+	, m_visibleNotches(0)
 {
 	m_elapsed = m_duration + GameDurationMs(1);
 }
@@ -96,7 +96,7 @@ void CRiseDead::Create(Vec3f aeSrc, float afBeta) {
 	fBetaRadSin = glm::sin(fBetaRad);
 	
 	sizeF = 0;
-	fSizeIntro = 0.0f;
+	m_visibleNotches = 0;
 	end = 40 - 1;
 	bIntro = true;
 
@@ -132,18 +132,14 @@ void CRiseDead::Create(Vec3f aeSrc, float afBeta) {
 	m_stones.Init(80.f);
 }
 
-GameDuration CRiseDead::GetDuration()
-{
+GameDuration CRiseDead::GetDuration() {
 	return m_duration;
 }
 
-
-
-void CRiseDead::Split(Vec3f * v, int a, int b, float yo)
-{
+void CRiseDead::Split(Vec3f * v, int a, int b, float yo) {
+	
 	if(a != b) {
-		int i = (int)((a + b) * 0.5f);
-
+		int i = int((a + b) * 0.5f);
 		if(i != a && i != b) {
 			v[i].x = (v[a].x + v[b].x) * 0.5f + yo * Random::getf(-1.f, 1.f) * fBetaRadCos;
 			v[i].y = v[0].y;// + (i+1)*5;
@@ -152,6 +148,7 @@ void CRiseDead::Split(Vec3f * v, int a, int b, float yo)
 			Split(v, i, b, yo * 0.8f);
 		}
 	}
+	
 }
 
 // TODO copy-paste spell effect Fissure
@@ -168,7 +165,7 @@ void CRiseDead::RenderFissure() {
 	//-------------------------------------------------------------------------
 	// computation des sommets
 
-	for(int i = 0; i <= std::min(end, int(fSizeIntro)); i++) {
+	for(int i = 0; i <= std::min(end, m_visibleNotches); i++) {
 		
 		float ff;
 		if(i <= end * 0.5f)
@@ -201,7 +198,7 @@ void CRiseDead::RenderFissure() {
 	vr[0].color = vr[1].color = vr[2].color = vr[3].color = Color::black.toRGB();
 
 	if(bIntro) {
-		for(int i = 0; i < std::min(end, (int)fSizeIntro); i++) {
+		for(int i = 0; i < std::min(end, m_visibleNotches); i++) {
 			vr[0].p = v1a[i];
 			vr[1].p = v1b[i];
 			vr[2].p = v1a[i + 1];
@@ -210,7 +207,7 @@ void CRiseDead::RenderFissure() {
 			drawTriangle(mat, &vr[1]);
 		}
 	} else {
-		for(int i = 0; i < std::min(end, (int)fSizeIntro); i++) {
+		for(int i = 0; i < std::min(end, m_visibleNotches); i++) {
 			vr[0].p = va[i];
 			vr[1].p = vb[i];
 			vr[2].p = va[i + 1];
@@ -227,7 +224,7 @@ void CRiseDead::RenderFissure() {
 	vr[2].color = vr[3].color = m_colorBorder.toRGB();
 	
 	Vec3f vt[4];
-	for(int i = 0; i < std::min(end, (int)fSizeIntro); i++) {
+	for(int i = 0; i < std::min(end, m_visibleNotches); i++) {
 		
 		vt[2] = va[i] - (va[i] - m_eSrc) * 0.2f;
 		vt[3] = va[i + 1] - (va[i + 1] - m_eSrc) * 0.2f;
@@ -328,7 +325,7 @@ void CRiseDead::RenderFissure() {
 			}
 		}
 		
-		if(i < fSizeIntro) {
+		if(i < m_visibleNotches) {
 			vt[0] = va[i];
 			vt[1] = va[i + 1];
 			vt[2].x = va[i].x;
@@ -349,7 +346,7 @@ void CRiseDead::RenderFissure() {
 			drawTriangle(mat, &vr[1]);
 		}
 		
-		if(i < fSizeIntro) {
+		if(i < m_visibleNotches) {
 			vt[0] = vb[i + 1];
 			vt[1] = vb[i];
 			vt[2].x = vb[i + 1].x;
@@ -391,7 +388,7 @@ void CRiseDead::Render() {
 		// Render intro (opening + rays)
 		float fOneOnDurationIntro = 1.f / toMsf(m_durationIntro);
 		if(m_elapsed < GameDurationMsf(toMsf(m_durationIntro) * 0.666f)) {
-			fSizeIntro = (end + 2) * fOneOnDurationIntro * (1.5f) * toMsf(m_elapsed);
+			m_visibleNotches = int((end + 2) * fOneOnDurationIntro * (1.5f) * toMsf(m_elapsed));
 			sizeF = 1;
 		} else {
 			bIntro = false;
@@ -418,9 +415,8 @@ CSummonCreature::CSummonCreature()
 	, end(0)
 	, iSize(100)
 	, bIntro(true)
-	, fOneOniSize(1.f / float(iSize))
 	, sizeF(0.f)
-	, fSizeIntro(0.f)
+	, m_visibleNotches(0)
 {
 	m_elapsed = m_duration + GameDurationMs(1);
 }
@@ -436,7 +432,7 @@ void CSummonCreature::Create(Vec3f aeSrc, float afBeta)
 	fBetaRadSin = glm::sin(fBetaRad);
 	
 	sizeF = 0;
-	fSizeIntro = 0.0f;
+	m_visibleNotches = 0;
 	end = 40 - 1;
 	bIntro = true;
 
@@ -490,11 +486,10 @@ void CSummonCreature::Create(Vec3f aeSrc, float afBeta)
 	sizeF = 0;
 }
 
-void CSummonCreature::Split(Vec3f * v, int a, int b, float yo)
-{
+void CSummonCreature::Split(Vec3f * v, int a, int b, float yo) {
+	
 	if(a != b) {
-		int i = (int)((a + b) * 0.5f);
-
+		int i = int((a + b) * 0.5f);
 		if((i != a) && (i != b)) {
 			v[i].x = (v[a].x + v[b].x) * 0.5f + yo * Random::getf(-1.f, 1.f) * (sizeF * 0.005f) * fBetaRadCos;
 			v[i].y = v[0].y + (i + 1) * 5;
@@ -503,6 +498,7 @@ void CSummonCreature::Split(Vec3f * v, int a, int b, float yo)
 			Split(v, i, b, yo * 0.8f);
 		}
 	}
+	
 }
 
 // TODO copy-paste spell effect Fissure
@@ -520,7 +516,7 @@ void CSummonCreature::RenderFissure() {
 	//-------------------------------------------------------------------------
 	// computation des sommets
 
-	for(int i = 0; i <= std::min(end, int(fSizeIntro)); i++) {
+	for(int i = 0; i <= std::min(end, m_visibleNotches); i++) {
 		
 		float ff;
 		if(i <= end * 0.5f)
@@ -553,7 +549,7 @@ void CSummonCreature::RenderFissure() {
 	vr[0].color = vr[1].color = vr[2].color = vr[3].color = Color::black.toRGB();
 	
 	if(bIntro) {
-		for(int i = 0; i < std::min(end, (int)fSizeIntro); i++) {
+		for(int i = 0; i < std::min(end, m_visibleNotches); i++) {
 			vr[0].p = v1a[i];
 			vr[1].p = v1b[i];
 			vr[2].p = v1a[i + 1];
@@ -562,7 +558,7 @@ void CSummonCreature::RenderFissure() {
 			drawTriangle(mat, &vr[1]);
 		}
 	} else {
-		for(int i = 0; i < std::min(end, (int)fSizeIntro); i++) {
+		for(int i = 0; i < std::min(end, m_visibleNotches); i++) {
 			vr[0].p = va[i];
 			vr[1].p = vb[i];
 			vr[2].p = va[i + 1];
@@ -579,7 +575,7 @@ void CSummonCreature::RenderFissure() {
 	vr[2].color = vr[3].color = m_colorBorder.toRGB();
 	
 	Vec3f vt[4];
-	for(int i = 0; i < std::min(end, (int)fSizeIntro); i++) {
+	for(int i = 0; i < std::min(end, m_visibleNotches); i++) {
 		
 		vt[2] = va[i] - (va[i] - m_eSrc) * 0.2f;
 		vt[3] = va[i + 1] - (va[i + 1] - m_eSrc) * 0.2f;
@@ -625,7 +621,7 @@ void CSummonCreature::RenderFissure() {
 
 	for(int i = 0; i < end - 1; i++) {
 		
-		if(i < fSizeIntro) {
+		if(i < m_visibleNotches) {
 			vt[0] = va[i];
 			vt[1] = va[i + 1];
 			vt[2] = va[i] + (va[i] - target) * 2.f;
@@ -644,7 +640,7 @@ void CSummonCreature::RenderFissure() {
 			drawTriangle(mat, &vr[1]);
 		}
 		
-		if(i < fSizeIntro) {
+		if(i < m_visibleNotches) {
 			vt[0] = vb[i + 1];
 			vt[1] = vb[i];
 			vt[2] = vb[i + 1] + (vb[i + 1] - target) * 2.f;
@@ -681,7 +677,7 @@ void CSummonCreature::Render() {
 		// Render intro (opening + rays)
 		float fOneOnDurationIntro = 1.f / toMsf(m_durationIntro);
 		if(m_elapsed < GameDurationMsf(toMsf(m_durationIntro) * 0.666f)) {
-			fSizeIntro = (end + 2) * fOneOnDurationIntro * (1.5f) * toMsf(m_elapsed);
+			m_visibleNotches = int((end + 2) * fOneOnDurationIntro * (1.5f) * toMsf(m_elapsed));
 			sizeF = 1;
 		} else {
 			bIntro = false;

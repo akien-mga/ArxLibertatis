@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2017 Arx Libertatis Team (see the AUTHORS file)
+ * Copyright 2011-2019 Arx Libertatis Team (see the AUTHORS file)
  *
  * This file is part of Arx Libertatis.
  *
@@ -114,10 +114,10 @@ ZeniMax Media Inc., Suite 120, Rockville, Maryland 20850 USA.
 
 #include "script/Script.h"
 
-void CheckNPCEx(Entity * io);
+void CheckNPCEx(Entity & io);
 
-static const float ARX_NPC_ON_HEAR_MAX_DISTANCE_STEP(600.0F);
-static const float ARX_NPC_ON_HEAR_MAX_DISTANCE_ITEM(800.0F);
+static const float ARX_NPC_ON_HEAR_MAX_DISTANCE_STEP = 600.f;
+static const float ARX_NPC_ON_HEAR_MAX_DISTANCE_ITEM = 800.f;
 
 void StareAtTarget(Entity * io);
 
@@ -323,7 +323,7 @@ void ARX_NPC_Behaviour_Change(Entity * io, Behaviour behavior, long behavior_par
 	}
 	
 	io->_npcdata->behavior = behavior;
-	io->_npcdata->behavior_param = (float)behavior_param;
+	io->_npcdata->behavior_param = float(behavior_param);
 }
 
 //! Resets all behaviour data from a NPC
@@ -482,15 +482,13 @@ static long AnchorData_GetNearest(const Vec3f & pos, const Cylinder & cyl, long 
 		
 		if(!eb->m_anchors[i].linked.empty()) {
 			float d = arx::distance2(eb->m_anchors[i].pos, pos);
-
-			if ((d < distmax) && (eb->m_anchors[i].height <= cyl.height)
-			        && (eb->m_anchors[i].radius >= cyl.radius)
-			        && (!(eb->m_anchors[i].flags & ANCHOR_FLAG_BLOCKED)))
-			{
+			if(d < distmax && eb->m_anchors[i].height <= cyl.height
+			   && eb->m_anchors[i].radius >= cyl.radius && !eb->m_anchors[i].blocked) {
 				returnvalue = long(i);
 				distmax = d;
 			}
 		}
+		
 	}
 	
 	return returnvalue;
@@ -717,11 +715,11 @@ bool ARX_NPC_SetStat(Entity & io, const std::string & statname, float value) {
 	} else if(statname == "mana") {
 		io._npcdata->manaPool.max = io._npcdata->manaPool.current = value < 0 ? 0 : value;
 	} else if(statname == "resistfire") {
-		io._npcdata->resist_fire = (unsigned char)glm::clamp(value, 0.f, 100.f);
+		io._npcdata->resist_fire = static_cast<unsigned char>(glm::clamp(value, 0.f, 100.f));
 	} else if(statname == "resistpoison") {
-		io._npcdata->resist_poison = (unsigned char)glm::clamp(value, 0.f, 100.f);
+		io._npcdata->resist_poison = static_cast<unsigned char>(glm::clamp(value, 0.f, 100.f));
 	} else if(statname == "resistmagic") {
-		io._npcdata->resist_magic = (unsigned char)glm::clamp(value, 0.f, 100.f);
+		io._npcdata->resist_magic = static_cast<unsigned char>(glm::clamp(value, 0.f, 100.f));
 	} else {
 		return false;
 	}
@@ -772,30 +770,30 @@ void ARX_NPC_ChangeMoveMode(Entity * io, MoveMode MOVEMODE) {
 /*!
  * \brief Diminishes life of a Poisoned NPC
  */
-static void ARX_NPC_ManagePoison(Entity * io) {
+static void ARX_NPC_ManagePoison(Entity & io) {
 	
-	float cp = io->_npcdata->poisonned * g_framedelay * 0.00025f;
-	float faster = 10.f - io->_npcdata->poisonned;
+	float cp = io._npcdata->poisonned * g_framedelay * 0.00025f;
+	float faster = 10.f - io._npcdata->poisonned;
 	if(faster < 0.f) {
 		faster = 0.f;
 	}
 	
-	if(Random::getf(0.f, 100.f) > io->_npcdata->resist_poison + faster) {
+	if(Random::getf(0.f, 100.f) > io._npcdata->resist_poison + faster) {
 		float dmg = cp * (1.f / 3);
-		if(io->_npcdata->lifePool.current > 0 && io->_npcdata->lifePool.current - dmg <= 0.f) {
-			long xp = io->_npcdata->xpvalue;
-			ARX_DAMAGES_DamageNPC(io, dmg, EntityHandle(), false, NULL);
+		if(io._npcdata->lifePool.current > 0 && io._npcdata->lifePool.current - dmg <= 0.f) {
+			long xp = io._npcdata->xpvalue;
+			ARX_DAMAGES_DamageNPC(&io, dmg, EntityHandle(), false, NULL);
 			ARX_PLAYER_Modify_XP(xp);
 		} else {
-			io->_npcdata->lifePool.current -= dmg;
+			io._npcdata->lifePool.current -= dmg;
 		}
-		io->_npcdata->poisonned -= cp * 0.1f;
+		io._npcdata->poisonned -= cp * 0.1f;
 	} else {
-		io->_npcdata->poisonned -= cp;
+		io._npcdata->poisonned -= cp;
 	}
 	
-	if(io->_npcdata->poisonned < 0.1f) {
-		io->_npcdata->poisonned = 0.f;
+	if(io._npcdata->poisonned < 0.1f) {
+		io._npcdata->poisonned = 0.f;
 	}
 	
 }
@@ -806,31 +804,31 @@ static void ARX_NPC_ManagePoison(Entity * io) {
  * Plays Water sounds
  * Decrease/stops Ignition of this IO if necessary
  */
-static void CheckUnderWaterIO(Entity * io) {
+static void CheckUnderWaterIO(Entity & io) {
 	
-	Vec3f ppos = io->pos;
+	Vec3f ppos = io.pos;
 	EERIEPOLY * ep = EEIsUnderWater(ppos);
 
-	if(io->ioflags & IO_UNDERWATER) {
+	if(io.ioflags & IO_UNDERWATER) {
 		if(!ep) {
-			io->ioflags &= ~IO_UNDERWATER;
+			io.ioflags &= ~IO_UNDERWATER;
 			ARX_SOUND_PlaySFX(g_snd.PLOUF, &ppos);
 			ARX_PARTICLES_SpawnWaterSplash(ppos);
 		}
 	} else if(ep) {
-		io->ioflags |= IO_UNDERWATER;
+		io.ioflags |= IO_UNDERWATER;
 		ARX_SOUND_PlaySFX(g_snd.PLOUF, &ppos);
 		ARX_PARTICLES_SpawnWaterSplash(ppos);
 
-		if(io->ignition > 0.f) {
+		if(io.ignition > 0.f) {
 			ARX_SOUND_PlaySFX(g_snd.TORCH_END, &ppos);
 
-			lightHandleDestroy(io->ignit_light);
+			lightHandleDestroy(io.ignit_light);
 
-				ARX_SOUND_Stop(io->ignit_sound);
-				io->ignit_sound = audio::SourcedSample();
+				ARX_SOUND_Stop(io.ignit_sound);
+				io.ignit_sound = audio::SourcedSample();
 
-			io->ignition = 0;
+			io.ignition = 0;
 		}
 	}
 }
@@ -866,8 +864,9 @@ void ARX_PHYSICS_Apply() {
 			continue;
 		}
 		
-		if((io->ioflags & IO_NPC) && io->_npcdata->poisonned > 0.f)
-			ARX_NPC_ManagePoison(io);
+		if((io->ioflags & IO_NPC) && io->_npcdata->poisonned > 0.f) {
+			ARX_NPC_ManagePoison(*io);
+		}
 
 		if(   (io->ioflags & IO_ITEM)
 		   && (io->gameFlags & GFLAG_GOREEXPLODE)
@@ -901,43 +900,44 @@ void ARX_PHYSICS_Apply() {
 			}
 		}
 		
-		CheckUnderWaterIO(io);
+		CheckUnderWaterIO(*io);
 		
 		if(io->obj && io->obj->pbox) {
 			io->gameFlags &= ~GFLAG_NOCOMPUTATION;
 			
-			PHYSICS_BOX_DATA * pbox = io->obj->pbox;
+			PHYSICS_BOX_DATA & pbox = *io->obj->pbox;
 			
-			if(pbox->active == 1) {
-				ARX_PHYSICS_BOX_ApplyModel(pbox, g_framedelay, io->rubber, io);
+			if(pbox.active == 1) {
+				ARX_PHYSICS_BOX_ApplyModel(pbox, g_framedelay, io->rubber, *io);
 				
 				if(io->soundcount > 12) {
 					io->soundtime = 0;
 					io->soundcount = 0;
-					for(size_t k = 0; k < pbox->vert.size(); k++) {
-						pbox->vert[k].velocity = Vec3f(0.f);
+					for(size_t k = 0; k < pbox.vert.size(); k++) {
+						pbox.vert[k].velocity = Vec3f(0.f);
 					}
-					pbox->active = 2;
-					pbox->stopcount = 0;
+					pbox.active = 2;
+					pbox.stopcount = 0;
 				}
 				
 				io->requestRoomUpdate = true;
 				
-				Vec3f offset = pbox->vert[0].initpos;
+				Vec3f offset = pbox.vert[0].initpos;
 				offset = VRotateY(offset, MAKEANGLE(270.f - io->angle.getYaw()));
 				offset = VRotateX(offset, -io->angle.getPitch());
 				offset = VRotateZ(offset, io->angle.getRoll());
-				io->pos = pbox->vert[0].pos - offset;
+				io->pos = pbox.vert[0].pos - offset;
 				
 				arx_assert(isallfinite(io->pos));
 				
 				continue;
 			}
 		}
-
-		if(IsDeadNPC(io))
+		
+		if(IsDeadNPC(*io)) {
 			continue;
-
+		}
+		
 		if(io->ioflags & IO_PHYSICAL_OFF) {
 			if(io->ioflags & IO_NPC) {
 				AnimLayer & layer0 = io->animlayer[0];
@@ -979,7 +979,7 @@ void ARX_PHYSICS_Apply() {
 				} else if(io->_npcdata->pathfind.listnb > 0) { // Found
 					SendIOScriptEvent(NULL, io, SM_PATHFINDER_SUCCESS);
 					io->_npcdata->pathfind.pathwait = 0;
-					io->_npcdata->pathfind.listpos += (unsigned short)ARX_NPC_GetNextAttainableNodeIncrement(io);
+					io->_npcdata->pathfind.listpos += ARX_NPC_GetNextAttainableNodeIncrement(io);
 					if(io->_npcdata->pathfind.listpos >= io->_npcdata->pathfind.listnb) {
 						io->_npcdata->pathfind.listpos = 0;
 					}
@@ -987,10 +987,10 @@ void ARX_PHYSICS_Apply() {
 			}
 
 			ManageNPCMovement(io);
-			CheckNPC(io);
+			CheckNPC(*io);
 
 			if(CURRENT_DETECT == i)
-				CheckNPCEx(io);
+				CheckNPCEx(*io);
 		}
 	}
 }
@@ -1153,12 +1153,13 @@ static float GetTRUETargetDist(Entity * io) {
 }
 
 //! Checks If a NPC is dead
-bool IsDeadNPC(Entity * io) {
+bool IsDeadNPC(const Entity & io) {
 	
-	if(!io || !(io->ioflags & IO_NPC))
-		return false;
+	if(io.ioflags & IO_NPC) {
+		return (io._npcdata->lifePool.current <= 0 || io.mainevent == SM_DEAD);
+	}
 	
-	return (io->_npcdata->lifePool.current <= 0 || io->mainevent == SM_DEAD);
+	return false;
 }
 
 //! Checks if Player is currently striking.
@@ -2296,7 +2297,7 @@ static void ManageNPCMovement(Entity * io) {
 		return;
 
 	// Dead ?
-	if(IsDeadNPC(io)) {
+	if(IsDeadNPC(*io)) {
 		io->ioflags |= IO_NO_COLLISIONS;
 		return;
 	}
@@ -2365,7 +2366,7 @@ static void ManageNPCMovement(Entity * io) {
 
 static void ManageNPCMovement_check_target_reached(Entity * io) {
 	
-	long lMax = std::max(ARX_NPC_GetNextAttainableNodeIncrement(io), 1L);
+	long lMax = std::max(ARX_NPC_GetNextAttainableNodeIncrement(io), 1l);
 
 	io->_npcdata->pathfind.listpos = checked_range_cast<unsigned short>(io->_npcdata->pathfind.listpos + lMax);
 
@@ -2481,7 +2482,7 @@ Entity * ARX_NPC_GetFirstNPCInSight(Entity * ioo)
 		Entity * io = entities[handle];
 
 		if(   !io
-		   || IsDeadNPC(io)
+		   || IsDeadNPC(*io)
 		   || io == ioo
 		   || !(io->ioflags & IO_NPC)
 		   || io->show != SHOW_FLAG_IN_SCENE
@@ -2562,16 +2563,14 @@ Entity * ARX_NPC_GetFirstNPCInSight(Entity * ioo)
 }
 
 //! Checks if a NPC is dead to prevent further Layers Animation
-void CheckNPC(Entity * io)
-{
-	if(!io || (io->show != SHOW_FLAG_IN_SCENE))
-		return;
-
-	if(IsDeadNPC(io)) {
-		io->animlayer[1].cur_anim = NULL;
-		io->animlayer[2].cur_anim = NULL;
-		io->animlayer[3].cur_anim = NULL;
+void CheckNPC(Entity & io) {
+	
+	if(io.show == SHOW_FLAG_IN_SCENE && IsDeadNPC(io)) {
+		io.animlayer[1].cur_anim = NULL;
+		io.animlayer[2].cur_anim = NULL;
+		io.animlayer[3].cur_anim = NULL;
 	}
+	
 }
 
 /*!
@@ -2580,12 +2579,12 @@ void CheckNPC(Entity * io)
  *
  * \remarks Uses Invisibility/Confuse/Torch infos.
  */
-void CheckNPCEx(Entity * io) {
+void CheckNPCEx(Entity & io) {
 	
 	ARX_PROFILE_FUNC();
 
 	// Distance Between Player and IO
-	float ds = arx::distance2(io->pos, player.basePosition());
+	float ds = arx::distance2(io.pos, player.basePosition());
 	
 	// Start as not visible
 	long Visible = 0;
@@ -2594,31 +2593,31 @@ void CheckNPCEx(Entity * io) {
 	if(entities.player()->invisibility <= 0.f && ds < square(2000.f) && player.lifePool.current > 0.f) {
 		
 		// checks for near contact +/- 15 cm --> force visibility
-		if(io->requestRoomUpdate) {
-			UpdateIORoom(io);
+		if(io.requestRoomUpdate) {
+			UpdateIORoom(&io);
 		}
 		
 		long playerRoom = ARX_PORTALS_GetRoomNumForPosition(player.pos, 1);
 		
-		float fdist = SP_GetRoomDist(io->pos, player.pos, io->room, playerRoom);
+		float fdist = SP_GetRoomDist(io.pos, player.pos, io.room, playerRoom);
 		
 		// Use Portal Room Distance for Extra Visibility Clipping.
-		if(playerRoom > -1 && io->room > -1 && fdist > 2000.f) {
+		if(playerRoom > -1 && io.room > -1 && fdist > 2000.f) {
 			// nothing to do
-		} else if(ds < square(GetIORadius(io) + GetIORadius(entities.player()) + 15.f)
-		          && glm::abs(player.pos.y - io->pos.y) < 200.f) {
+		} else if(ds < square(GetIORadius(&io) + GetIORadius(entities.player()) + 15.f)
+		          && glm::abs(player.pos.y - io.pos.y) < 200.f) {
 			Visible = 1;
 		} else { // Make full visibility test
 			
 			// Retreives Head group position for "eye" pos.
-			ObjVertHandle grp = io->obj->fastaccess.head_group_origin;
-			Vec3f orgn = io->pos - Vec3f(0.f, (grp == ObjVertHandle()) ? 90.f : 120.f, 0.f);
+			ObjVertHandle grp = io.obj->fastaccess.head_group_origin;
+			Vec3f orgn = io.pos - Vec3f(0.f, (grp == ObjVertHandle()) ? 90.f : 120.f, 0.f);
 			Vec3f dest = player.pos + Vec3f(0.f, 90.f, 0.f);
 
 			// Check for Field of vision angle
 			float aa = getAngle(orgn.x, orgn.z, dest.x, dest.z);
 			aa = MAKEANGLE(glm::degrees(aa));
-			float ab = MAKEANGLE(io->angle.getYaw());
+			float ab = MAKEANGLE(io.angle.getYaw());
 			if(glm::abs(AngularDifference(aa, ab)) < 110.f) {
 				
 				// Check for Darkness/Stealth
@@ -2634,18 +2633,18 @@ void CheckNPCEx(Entity * io) {
 			}
 		}
 		
-		if(Visible && !io->_npcdata->detect) {
+		if(Visible && !io._npcdata->detect) {
 			// if visible but was NOT visible, sends an Detectplayer Event
-			SendIOScriptEvent(NULL, io, SM_DETECTPLAYER);
-			io->_npcdata->detect = 1;
+			SendIOScriptEvent(NULL, &io, SM_DETECTPLAYER);
+			io._npcdata->detect = 1;
 		}
 		
 	}
 	
 	// if not visible but was visible, sends an Undetectplayer Event
-	if(!Visible && io->_npcdata->detect) {
-		SendIOScriptEvent(NULL, io, SM_UNDETECTPLAYER);
-		io->_npcdata->detect = 0;
+	if(!Visible && io._npcdata->detect) {
+		SendIOScriptEvent(NULL, &io, SM_UNDETECTPLAYER);
+		io._npcdata->detect = 0;
 	}
 	
 }
@@ -2737,20 +2736,18 @@ void ARX_NPC_SpawnAudibleSound(const Vec3f & pos, Entity * source, const float f
 	
 }
 
-void ManageIgnition(Entity * io) {
+void ManageIgnition(Entity & io) {
 	
-	arx_assert(io);
-	
-	if(player.torch == io) {
-		lightHandleDestroy(io->ignit_light);
+	if(player.torch == &io) {
+		lightHandleDestroy(io.ignit_light);
 		
-		ARX_SOUND_Stop(io->ignit_sound);
-		io->ignit_sound = audio::SourcedSample();
+		ARX_SOUND_Stop(io.ignit_sound);
+		io.ignit_sound = audio::SourcedSample();
 		
 		return;
 	}
 	
-	bool addParticles = !(io == DRAGINTER && CANNOT_PUT_IT_HERE != EntityMoveCursor_Ok);
+	bool addParticles = !(&io == DRAGINTER && CANNOT_PUT_IT_HERE != EntityMoveCursor_Ok);
 	
 	// Torch Management
 	Entity * plw = NULL;
@@ -2758,37 +2755,37 @@ void ManageIgnition(Entity * io) {
 	if(ValidIONum(player.equiped[EQUIP_SLOT_WEAPON]))
 		plw = entities[player.equiped[EQUIP_SLOT_WEAPON]];
 	
-	if((io->ioflags & IO_FIERY) && (!(io->type_flags & OBJECT_TYPE_BOW))
-	   && (io->show == SHOW_FLAG_IN_SCENE || io == plw)) {
+	if((io.ioflags & IO_FIERY) && (!(io.type_flags & OBJECT_TYPE_BOW))
+	   && (io.show == SHOW_FLAG_IN_SCENE || &io == plw)) {
 		
-		io->ignition = 25.f;
+		io.ignition = 25.f;
 		
-		if(addParticles && io->obj && !io->obj->facelist.empty()) {
-			createObjFireParticles(io->obj, 4, 1, 1);
+		if(addParticles && io.obj && !io.obj->facelist.empty()) {
+			createObjFireParticles(io.obj, 4, 1, 1);
 		}
-	} else if(io->obj && io->obj->fastaccess.fire != ActionPoint() && io->ignition > 0.f) {
+	} else if(io.obj && io.obj->fastaccess.fire != ActionPoint() && io.ignition > 0.f) {
 		
-		io->ignition = 25.f;
-		io->durability -= g_framedelay * 0.0001f;
+		io.ignition = 25.f;
+		io.durability -= g_framedelay * 0.0001f;
 		
-		if(io->durability <= 0.f) {
-			ARX_SOUND_PlaySFX(g_snd.TORCH_END, &io->pos);
-			ARX_INTERACTIVE_DestroyIOdelayed(io);
+		if(io.durability <= 0.f) {
+			ARX_SOUND_PlaySFX(g_snd.TORCH_END, &io.pos);
+			ARX_INTERACTIVE_DestroyIOdelayed(&io);
 			return;
 		}
 		
 		if(addParticles) {
-			Vec3f pos = actionPointPosition(io->obj, io->obj->fastaccess.fire);
+			Vec3f pos = actionPointPosition(io.obj, io.obj->fastaccess.fire);
 			createFireParticles(pos, 2, 2);
 		}
 	} else {
-		io->ignition -= g_framedelay * 0.01f;
+		io.ignition -= g_framedelay * 0.01f;
 		
-		if(addParticles && io->obj && !io->obj->facelist.empty()) {
-			float p = io->ignition * g_framedelay * 0.001f * float(io->obj->facelist.size()) * 0.001f * 2.f;
+		if(addParticles && io.obj && !io.obj->facelist.empty()) {
+			float p = io.ignition * g_framedelay * 0.001f * float(io.obj->facelist.size()) * 0.001f * 2.f;
 			int positions = std::min(int(std::ceil(p)), 10);
 			
-			createObjFireParticles(io->obj, positions, 6, 180);
+			createObjFireParticles(io.obj, positions, 6, 180);
 		}
 	}
 	
@@ -2796,56 +2793,54 @@ void ManageIgnition(Entity * io) {
 }
 
 
-void ManageIgnition_2(Entity * io) {
+void ManageIgnition_2(Entity & io) {
 	
-	arx_assert(io);
-	
-	if(io->ignition > 0.f) {
+	if(io.ignition > 0.f) {
 		
-		if(io->ignition > 100.f) {
-			io->ignition = 100.f;
+		if(io.ignition > 100.f) {
+			io.ignition = 100.f;
 		}
 		
-		Vec3f position = io->pos;
-		if(io->obj && io->obj->fastaccess.fire != ActionPoint()) {
-			if(io == DRAGINTER && io->show == SHOW_FLAG_ON_PLAYER) {
+		Vec3f position = io.pos;
+		if(io.obj && io.obj->fastaccess.fire != ActionPoint()) {
+			if(&io == DRAGINTER && io.show == SHOW_FLAG_ON_PLAYER) {
 				position = player.pos;
 			} else {
-				position = actionPointPosition(io->obj, io->obj->fastaccess.fire);
+				position = actionPointPosition(io.obj, io.obj->fastaccess.fire);
 			}
 		}
 		
-		EERIE_LIGHT * light = dynLightCreate(io->ignit_light);
+		EERIE_LIGHT * light = dynLightCreate(io.ignit_light);
 		if(light) {
-			light->intensity = std::max(io->ignition * 0.1f, 1.f);
-			light->fallstart = std::max(io->ignition * 10.f, 100.f);
-			light->fallend   = std::max(io->ignition * 25.f, 240.f);
-			float v = glm::clamp(io->ignition * 0.1f, 0.5f, 1.f);
+			light->intensity = std::max(io.ignition * 0.1f, 1.f);
+			light->fallstart = std::max(io.ignition * 10.f, 100.f);
+			light->fallend   = std::max(io.ignition * 25.f, 240.f);
+			float v = glm::clamp(io.ignition * 0.1f, 0.5f, 1.f);
 			light->rgb = (Color3f(1.f, 0.8f, 0.6f) - randomColor3f() * Color3f(0.2f, 0.2f, 0.2f)) * v;
 			light->pos = position + Vec3f(0.f, -30.f, 0.f);
 			light->ex_flaresize = 40.f;
-			if(io->show == SHOW_FLAG_IN_SCENE || io->show == SHOW_FLAG_TELEPORTING) {
+			if(io.show == SHOW_FLAG_IN_SCENE || io.show == SHOW_FLAG_TELEPORTING) {
 				light->extras |= EXTRAS_FLARE;
 			} else {
 				light->extras &= ~EXTRAS_FLARE;
 			}
 		}
 
-		if(io->ignit_sound == audio::SourcedSample()) {
-			io->ignit_sound = ARX_SOUND_PlaySFX_loop(g_snd.FIREPLACE_LOOP, &position, Random::getf(0.95f, 1.05f));
+		if(io.ignit_sound == audio::SourcedSample()) {
+			io.ignit_sound = ARX_SOUND_PlaySFX_loop(g_snd.FIREPLACE_LOOP, &position, Random::getf(0.95f, 1.05f));
 		} else {
-			ARX_SOUND_RefreshPosition(io->ignit_sound, position);
+			ARX_SOUND_RefreshPosition(io.ignit_sound, position);
 		}
 		
 		if(Random::getf() > 0.9f) {
-			CheckForIgnition(Sphere(position, io->ignition), true, 0);
+			CheckForIgnition(Sphere(position, io.ignition), true, 0);
 		}
 		
 	} else {
-		lightHandleDestroy(io->ignit_light);
+		lightHandleDestroy(io.ignit_light);
 		
-		ARX_SOUND_Stop(io->ignit_sound);
-		io->ignit_sound = audio::SourcedSample();
+		ARX_SOUND_Stop(io.ignit_sound);
+		io.ignit_sound = audio::SourcedSample();
 	}
 }
 

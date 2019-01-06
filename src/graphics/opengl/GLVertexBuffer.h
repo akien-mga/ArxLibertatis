@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2017 Arx Libertatis Team (see the AUTHORS file)
+ * Copyright 2011-2018 Arx Libertatis Team (see the AUTHORS file)
  *
  * This file is part of Arx Libertatis.
  *
@@ -34,7 +34,7 @@
 #include "io/log/Logger.h"
 
 template <class Vertex>
-static void setVertexArray(OpenGLRenderer * renderer, const Vertex * vertex, const void * ref);
+static void setVertexArray(OpenGLRenderer * renderer, const Vertex * vertices, const void * ref);
 
 // cached vertex array definitions
 enum GLArrayClientState {

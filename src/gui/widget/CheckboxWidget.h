@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2016 Arx Libertatis Team (see the AUTHORS file)
+ * Copyright 2015-2018 Arx Libertatis Team (see the AUTHORS file)
  *
  * This file is part of Arx Libertatis.
  *
@@ -25,12 +25,13 @@
 #include <boost/function.hpp>
 
 #include "gui/widget/Widget.h"
+#include "platform/Platform.h"
 
 class Font;
 class TextWidget;
 class TextureContainer;
 
-class CheckboxWidget : public Widget {
+class CheckboxWidget arx_final : public Widget {
 	
 public:
 	

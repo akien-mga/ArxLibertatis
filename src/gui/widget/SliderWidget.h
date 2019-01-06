@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2016 Arx Libertatis Team (see the AUTHORS file)
+ * Copyright 2015-2018 Arx Libertatis Team (see the AUTHORS file)
  *
  * This file is part of Arx Libertatis.
  *
@@ -25,6 +25,7 @@
 #include <boost/function.hpp>
 
 #include "gui/widget/Widget.h"
+#include "platform/Platform.h"
 
 class Font;
 class ButtonWidget;
@@ -32,7 +33,7 @@ class TextWidget;
 class TextureContainer;
 
 //! Slider with value in the range [0..10]
-class SliderWidget: public Widget {
+class SliderWidget arx_final : public Widget {
 	
 public:
 	

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2016 Arx Libertatis Team (see the AUTHORS file)
+ * Copyright 2011-2018 Arx Libertatis Team (see the AUTHORS file)
  *
  * This file is part of Arx Libertatis.
  *
@@ -118,8 +118,9 @@ inline glm::quat Quat_Multiply(const glm::quat & q1, const glm::quat & q2) {
 
 //! Converts a unit quaternion into a rotation matrix.
 inline void MatrixFromQuat(glm::mat4x4 & m, const glm::quat & quat) {
+	
 	float wx, wy, wz, xx, yy, yz, xy, xz, zz, x2, y2, z2;
-
+	
 	// calculate coefficients
 	x2 = quat.x + quat.x;
 	y2 = quat.y + quat.y;
@@ -133,21 +134,22 @@ inline void MatrixFromQuat(glm::mat4x4 & m, const glm::quat & quat) {
 	wx = quat.w * x2;
 	wy = quat.w * y2;
 	wz = quat.w * z2;
-
-	m[0][0] = 1.0F - (yy + zz);
+	
+	m[0][0] = 1.f - (yy + zz);
 	m[1][0] = xy - wz;
 	m[2][0] = xz + wy;
-	m[3][0] = 0.0F;
-
+	m[3][0] = 0.f;
+	
 	m[0][1] = xy + wz;
-	m[1][1] = 1.0F - (xx + zz);
+	m[1][1] = 1.f - (xx + zz);
 	m[2][1] = yz - wx;
-	m[3][1] = 0.0F;
-
+	m[3][1] = 0.f;
+	
 	m[0][2] = xz - wy;
 	m[1][2] = yz + wx;
-	m[2][2] = 1.0F - (xx + yy);
-	m[3][2] = 0.0F;
+	m[2][2] = 1.f - (xx + yy);
+	m[3][2] = 0.f;
+	
 }
 
 //! Converts a rotation matrix into a unit quaternion.
@@ -247,29 +249,6 @@ inline void VectorRotateZ(Vec3f & _eIn, Vec3f & _eOut, float _fAngle) {
 	_eOut.x = (_eIn.x * c) + (_eIn.y * s);
 	_eOut.y = (_eIn.y * c) - (_eIn.x * s);
 	_eOut.z =  _eIn.z;
-}
-
-
-inline Vec2s inventorySizeFromTextureSize_1(u32 m_dwWidth, u32 m_dwHeight) {
-	Vec2s m_inventorySize;
-	
-	unsigned long w = m_dwWidth >> 5;
-	unsigned long h = m_dwHeight >> 5;
-
-	if ((w << 5) != m_dwWidth)
-		m_inventorySize.x = (char)(w + 1);
-	else
-		m_inventorySize.x = (char)(w);
-
-	if ((h << 5) != m_dwHeight)
-		m_inventorySize.y = (char)(h + 1);
-	else
-		m_inventorySize.y = (char)(h);
-	
-	m_inventorySize.x = glm::clamp(m_inventorySize.x, short(1), short(3));
-	m_inventorySize.y = glm::clamp(m_inventorySize.y, short(1), short(3));
-
-	return m_inventorySize;
 }
 
 inline Vec2s inventorySizeFromTextureSize_2(u32 m_dwWidth, u32 m_dwHeight) {

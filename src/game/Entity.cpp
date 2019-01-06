@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2016 Arx Libertatis Team (see the AUTHORS file)
+ * Copyright 2011-2019 Arx Libertatis Team (see the AUTHORS file)
  *
  * This file is part of Arx Libertatis.
  *
@@ -97,7 +97,6 @@ Entity::Entity(const res::path & classPath, EntityInstance instance)
 	, collision(0)
 	, mainevent(SM_MAIN)
 	, infracolor(Color3f::blue)
-	, changeanim(-1)
 	, weight(1.f)
 	, gameFlags(GFLAG_NEEDINIT | GFLAG_INTERACTIVITY)
 	, fall(0.f)
@@ -147,7 +146,7 @@ Entity::Entity(const res::path & classPath, EntityInstance instance)
 	
 	m_index = entities.add(this);
 	
-	std::fill_n(anims, MAX_ANIMS, (ANIM_HANDLE *)NULL);
+	std::fill_n(anims, MAX_ANIMS, static_cast<ANIM_HANDLE *>(NULL));
 	
 	for(size_t l = 0; l < MAX_ANIM_LAYERS; l++) {
 		animlayer[l] = AnimLayer();

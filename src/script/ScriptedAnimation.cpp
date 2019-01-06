@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2017 Arx Libertatis Team (see the AUTHORS file)
+ * Copyright 2011-2018 Arx Libertatis Team (see the AUTHORS file)
  *
  * This file is part of Arx Libertatis.
  *
@@ -168,7 +168,11 @@ class PlayAnimCommand : public Command {
 	
 	static void setNextAnim(Entity * io, ANIM_HANDLE * ea, AnimLayer & layer, bool loop, bool nointerpol) {
 		
-		if(IsDeadNPC(io)) {
+		if(!io) {
+			return;
+		}
+		
+		if(IsDeadNPC(*io)) {
 			return;
 		}
 		
@@ -271,9 +275,9 @@ public:
 			timer.interval = GameDurationMs(1000);
 			// Don't assume that we successfully set the animation - use the current animation
 			if(layer.cur_anim) {
-				arx_assert(layer.altidx_cur >= 0 && layer.altidx_cur < short(layer.cur_anim->anims.size()));
-				if(layer.cur_anim->anims[layer.altidx_cur]->anim_time > toAnimationDuration(timer.interval)) {
-					timer.interval = toGameDuration(layer.cur_anim->anims[layer.altidx_cur]->anim_time);
+				arx_assert(layer.altidx_cur < layer.cur_anim->anims.size());
+				if(layer.currentAltAnim()->anim_time > toAnimationDuration(timer.interval)) {
+					timer.interval = toGameDuration(layer.currentAltAnim()->anim_time);
 				}
 			}
 			timer.pos = pos;

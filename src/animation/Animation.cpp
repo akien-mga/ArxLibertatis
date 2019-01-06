@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2017 Arx Libertatis Team (see the AUTHORS file)
+ * Copyright 2011-2018 Arx Libertatis Team (see the AUTHORS file)
  *
  * This file is part of Arx Libertatis.
  *
@@ -87,25 +87,25 @@ std::vector<ANIM_HANDLE> animations(MAX_ANIMATIONS);
 
 static const long anim_power[] = { 100, 20, 15, 12, 8, 6, 5, 4, 3, 2, 2, 1, 1, 1, 1 };
 
-short ANIM_GetAltIdx(ANIM_HANDLE * ah, long old) {
+u16 ANIM_GetAltIdx(const ANIM_HANDLE & ah, u16 old) {
 	
-	if(ah->anims.size() == 1) {
+	if(ah.anims.size() == 1) {
 		return 0;
 	}
 	
 	long total = anim_power[0];
-	for(size_t i = 1; i < ah->anims.size(); i++) {
+	for(size_t i = 1; i < ah.anims.size(); i++) {
 		total += anim_power[std::min(i, size_t(boost::size(anim_power) - 1))];
 	}
 	
 	while(true) {
-		for(size_t i = 0; i < ah->anims.size(); i++) {
-			if(long(i) == old) {
+		for(size_t i = 0; i < ah.anims.size(); i++) {
+			if(i == old) {
 				continue;
 			}
 			long r = Random::get(0l, total);
 			if(r < anim_power[std::min(i, size_t(boost::size(anim_power) - 1))]) {
-				return short(i);
+				return u16(i);
 			}
 		}
 	}
@@ -119,9 +119,10 @@ void ANIM_Set(AnimLayer & layer, ANIM_HANDLE * anim) {
 	}
 	
 	layer.cur_anim = anim;
-	layer.altidx_cur = ANIM_GetAltIdx(anim, layer.altidx_cur);
+	layer.altidx_cur = ANIM_GetAltIdx(*anim, layer.altidx_cur);
 	
-	if(layer.altidx_cur > short(layer.cur_anim->anims.size())) {
+	// TODO is this > correct ?
+	if(layer.altidx_cur > layer.cur_anim->anims.size()) {
 		layer.altidx_cur = 0;
 	}
 	
@@ -257,15 +258,18 @@ static EERIE_ANIM * TheaToEerie(const char * adr, size_t size, const res::path &
 	LogDebug("Version - " << th->version << "  Frames " << th->nb_frames
 	         << "  Groups " << th->nb_groups << "  KeyFrames " << th->nb_key_frames);
 	
-	eerie->frames.resize(th->nb_key_frames);
-	eerie->groups.resize(th->nb_key_frames * th->nb_groups);
-	eerie->voidgroups.resize(th->nb_groups);
+	size_t keyFrames = size_t(th->nb_key_frames);
+	size_t groupCount = size_t(th->nb_groups);
+	
+	eerie->frames.resize(keyFrames);
+	eerie->groups.resize(keyFrames * groupCount);
+	eerie->voidgroups.resize(groupCount);
 	std::fill(eerie->voidgroups.begin(), eerie->voidgroups.end(), false);
 
 	eerie->anim_time = 0;
 
 	// Go For Keyframes read
-	for(long i = 0; i < th->nb_key_frames; i++) {
+	for(size_t i = 0; i < keyFrames; i++) {
 		LogDebug("Loading keyframe " << i);
 
 		THEA_KEYFRAME_2015 kf2015;
@@ -336,12 +340,12 @@ static EERIE_ANIM * TheaToEerie(const char * adr, size_t size, const res::path &
 		}
 
 		// Now go for Group Rotations/Translations/scaling for each GROUP
-		for(long j = 0; j < th->nb_groups; j++) {
+		for(size_t j = 0; j < groupCount; j++) {
 
 			const THEO_GROUPANIM * tga = reinterpret_cast<const THEO_GROUPANIM *>(adr + pos);
 			pos += sizeof(THEO_GROUPANIM);
 
-			EERIE_GROUP * eg = &eerie->groups[j + i * th->nb_groups];
+			EERIE_GROUP * eg = &eerie->groups[j + i * groupCount];
 			eg->key = tga->key_group;
 			eg->quat = tga->Quaternion;
 			eg->translate = tga->translate.toVec3();
@@ -368,22 +372,22 @@ static EERIE_ANIM * TheaToEerie(const char * adr, size_t size, const res::path &
 
 		pos += 4; // num_sfx
 	}
-
-	for(long i = 0; i < th->nb_key_frames; i++) {
-
+	
+	for(size_t i = 0; i < keyFrames; i++) {
+		
 		if(!eerie->frames[i].f_translate) {
-
+			
 			long k = i;
-			while((k >= 0) && (!eerie->frames[k].f_translate)) {
+			while(k >= 0 && !eerie->frames[k].f_translate) {
 				k--;
 			}
-
-			long j = i;
-			while((j < th->nb_key_frames) && (!eerie->frames[j].f_translate)) {
+			
+			size_t j = i;
+			while(j < keyFrames && !eerie->frames[j].f_translate) {
 				j++;
 			}
-
-			if((j < th->nb_key_frames) && (k >= 0)) {
+			
+			if(j < keyFrames && k >= 0) {
 				float r1 = GetTimeBetweenKeyFrames(eerie, k, i);
 				float r2 = GetTimeBetweenKeyFrames(eerie, i, j);
 				float tot = 1.f / (r1 + r2);
@@ -391,21 +395,22 @@ static EERIE_ANIM * TheaToEerie(const char * adr, size_t size, const res::path &
 				r2 *= tot;
 				eerie->frames[i].translate = eerie->frames[j].translate * r1 + eerie->frames[k].translate * r2;
 			}
+			
 		}
-
+		
 		if(!eerie->frames[i].f_rotate) {
-
+			
 			long k = i;
-			while((k >= 0) && (!eerie->frames[k].f_rotate)) {
+			while(k >= 0 && !eerie->frames[k].f_rotate) {
 				k--;
 			}
-
-			long j = i;
-			while ((j < th->nb_key_frames) && (!eerie->frames[j].f_rotate)) {
+			
+			size_t j = i;
+			while(j < keyFrames && !eerie->frames[j].f_rotate) {
 				j++;
 			}
-
-			if ((j < th->nb_key_frames) && (k >= 0)) {
+			
+			if(j < keyFrames && k >= 0) {
 				float r1 = GetTimeBetweenKeyFrames(eerie, k, i);
 				float r2 = GetTimeBetweenKeyFrames(eerie, i, j);
 				float tot = 1.f / (r1 + r2);
@@ -417,10 +422,12 @@ static EERIE_ANIM * TheaToEerie(const char * adr, size_t size, const res::path &
 				eerie->frames[i].quat.y = eerie->frames[j].quat.y * r1 + eerie->frames[k].quat.y * r2;
 				eerie->frames[i].quat.z = eerie->frames[j].quat.z * r1 + eerie->frames[k].quat.z * r2;
 			}
+			
 		}
+		
 	}
 
-	for(long i = 0; i < th->nb_key_frames; i++) {
+	for(size_t i = 0; i < keyFrames; i++) {
 		eerie->frames[i].f_translate = true;
 		eerie->frames[i].f_rotate = true;
 	}
@@ -532,7 +539,7 @@ ANIM_HANDLE * EERIE_ANIMMANAGER_Load_NoWarning(const res::path & path) {
 /*!
  * \brief Fill "pos" with "eanim" total translation
  */
-Vec3f GetAnimTotalTranslate(ANIM_HANDLE * eanim, long alt_idx) {
+Vec3f GetAnimTotalTranslate(ANIM_HANDLE * eanim, size_t alt_idx) {
 	
 	if(!eanim || !eanim->anims[alt_idx] || eanim->anims[alt_idx]->frames.empty()) {
 		return Vec3f(0.f);
@@ -558,7 +565,7 @@ void PrepareAnim(AnimLayer & layer, AnimationDuration time, Entity * io) {
 	if(io && (io->ioflags & IO_FREEZESCRIPT))
 		time = 0;
 	
-	if(layer.altidx_cur >= short(layer.cur_anim->anims.size())) {
+	if(layer.altidx_cur >= layer.cur_anim->anims.size()) {
 		layer.altidx_cur = 0;
 	}
 	
@@ -567,7 +574,7 @@ void PrepareAnim(AnimLayer & layer, AnimationDuration time, Entity * io) {
 
 	layer.flags &= ~EA_ANIMEND;
 
-	AnimationDuration animTime = layer.cur_anim->anims[layer.altidx_cur]->anim_time;
+	AnimationDuration animTime = layer.currentAltAnim()->anim_time;
 	
 	if(layer.ctime > animTime) {
 	
@@ -587,7 +594,7 @@ void PrepareAnim(AnimLayer & layer, AnimationDuration time, Entity * io) {
 				FinishAnim(io, layer.cur_anim);
 		} else {
 			layer.flags |= EA_ANIMEND;
-			layer.ctime = layer.cur_anim->anims[layer.altidx_cur]->anim_time;
+			layer.ctime = layer.currentAltAnim()->anim_time;
 		}
 	
 	}
@@ -598,60 +605,58 @@ void PrepareAnim(AnimLayer & layer, AnimationDuration time, Entity * io) {
 	else
 		tim = layer.ctime;
 	
-	EERIE_ANIM * anim = layer.cur_anim->anims[layer.altidx_cur];
+	const EERIE_ANIM & anim = *layer.currentAltAnim();
 	
-	layer.currentFrame = long(anim->frames.size()) - 2;
+	layer.currentFrame = long(anim.frames.size()) - 2;
 	layer.currentInterpolation = 1.f;
 	
-	for(size_t i = 1; i < anim->frames.size(); i++) {
-		AnimationDuration tcf = anim->frames[i - 1].time;
-		AnimationDuration tnf = anim->frames[i].time;
+	for(size_t i = 1; i < anim.frames.size(); i++) {
+		AnimationDuration tcf = anim.frames[i - 1].time;
+		AnimationDuration tnf = anim.frames[i].time;
 
 		if(tcf == tnf)
 			return;
 
-		if((tim < tnf && tim >= tcf) || (i == anim->frames.size() - 1 && tim == tnf)) {
-			long fr = long(i) - 1;
+		if((tim < tnf && tim >= tcf) || (i == anim.frames.size() - 1 && tim == tnf)) {
+			const size_t fr = i - 1;
 			tim -= tcf;
 			float pour = toMsf(tim) / toMsf(tnf - tcf);
 			
-			// Frame Sound Management
 			if(!(layer.flags & EA_ANIMEND)
 			   && time != 0
-			   && (anim->frames[fr].sample != audio::SampleHandle())
-			   && (layer.lastframe != fr)) {
-
-				Vec3f * position = io ? &io->pos : NULL;
-				
-				if(layer.lastframe < fr && layer.lastframe != -1) {
-					for(long n = layer.lastframe + 1; n <= fr; n++)
-						ARX_SOUND_PlayAnim(anim->frames[n].sample, position);
-				} else {
-					ARX_SOUND_PlayAnim(anim->frames[fr].sample, position);
-				}
-			}
-
-			// Frame Flags Management
-			if(!(layer.flags & EA_ANIMEND)
-			   && time != 0
-			   && (anim->frames[fr].stepSound)
-			   && (layer.lastframe != fr)) {
-				
-				if(io && io != entities.player()) {
-					if(layer.lastframe < fr && layer.lastframe != -1) {
-						for(long n = layer.lastframe + 1; n <= fr; n++) {
-							if(anim->frames[n].stepSound)
-								ARX_NPC_NeedStepSound(io, io->pos);
+			   && layer.lastframe != long(fr)) {
+			
+				// Frame Sound Management
+				if(anim.frames[fr].sample != audio::SampleHandle()) {
+					Vec3f * position = io ? &io->pos : NULL;
+					
+					if(layer.lastframe < long(fr) && layer.lastframe != -1) {
+						for(size_t n = size_t(layer.lastframe) + 1; n <= fr; n++) {
+							ARX_SOUND_PlayAnim(anim.frames[n].sample, position);
 						}
-					} else if(anim->frames[fr].stepSound) {
+					} else {
+						ARX_SOUND_PlayAnim(anim.frames[fr].sample, position);
+					}
+				}
+				
+				// Frame Flags Management
+				if(anim.frames[fr].stepSound && io && io != entities.player()) {
+					
+					if(layer.lastframe < long(fr) && layer.lastframe != -1) {
+						for(size_t n = size_t(layer.lastframe) + 1; n <= fr; n++) {
+							if(anim.frames[n].stepSound) {
+								ARX_NPC_NeedStepSound(io, io->pos);
+							}
+						}
+					} else if(anim.frames[fr].stepSound) {
 						ARX_NPC_NeedStepSound(io, io->pos);
 					}
 				}
 			}
 			
 			// Memorize this frame as lastframe.
-			layer.lastframe = fr;
-			layer.currentFrame = fr;
+			layer.lastframe = long(fr);
+			layer.currentFrame = long(fr);
 			layer.currentInterpolation = pour;
 			break;
 		}

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2017 Arx Libertatis Team (see the AUTHORS file)
+ * Copyright 2011-2019 Arx Libertatis Team (see the AUTHORS file)
  *
  * This file is part of Arx Libertatis.
  *
@@ -115,7 +115,7 @@ public:
 		std::memcpy(&funcptr, &m_func, sizeof(funcptr));
 		return funcptr;
 		#else
-		return (T)m_func;
+		return reinterpret_cast<T>(m_func);
 		#endif
 	}
 };

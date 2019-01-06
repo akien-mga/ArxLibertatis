@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2017 Arx Libertatis Team (see the AUTHORS file)
+ * Copyright 2011-2019 Arx Libertatis Team (see the AUTHORS file)
  *
  * This file is part of Arx Libertatis.
  *
@@ -318,7 +318,7 @@ struct ARXCHARACTER {
 	
 	RuneFlags rune_flags;
 	bool hasRune(Rune rune) {
-		return (rune_flags & (RuneFlag)(1 << rune)) != 0;
+		return (rune_flags & RuneFlag(1 << rune)) != 0;
 	}
 	
 	

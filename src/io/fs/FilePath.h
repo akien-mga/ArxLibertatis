@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2014 Arx Libertatis Team (see the AUTHORS file)
+ * Copyright 2011-2018 Arx Libertatis Team (see the AUTHORS file)
  *
  * This file is part of Arx Libertatis.
  *
@@ -39,7 +39,7 @@ private:
 	
 	static path resolve(const path & base, const path & branch);
 	
-	static std::string load(const std::string & src);
+	static std::string load(const std::string & str);
 	
 	static path create(const std::string & src);
 	

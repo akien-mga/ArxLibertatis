@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2016 Arx Libertatis Team (see the AUTHORS file)
+ * Copyright 2011-2018 Arx Libertatis Team (see the AUTHORS file)
  *
  * This file is part of Arx Libertatis.
  *
@@ -226,20 +226,20 @@ struct IO_NPCDATA {
 	
 };
 
-const float ARX_NPC_AUDIBLE_VOLUME_MIN(0.94F);
-const float ARX_NPC_AUDIBLE_VOLUME_MAX(1.0F);
-const float ARX_NPC_AUDIBLE_VOLUME_DEFAULT(ARX_NPC_AUDIBLE_VOLUME_MAX);
-const float ARX_NPC_AUDIBLE_VOLUME_RANGE(ARX_NPC_AUDIBLE_VOLUME_MAX - ARX_NPC_AUDIBLE_VOLUME_MIN);
-const float ARX_NPC_AUDIBLE_FACTOR_MIN(1.0F);
-const float ARX_NPC_AUDIBLE_FACTOR_MAX(4.5F);
-const float ARX_NPC_AUDIBLE_FACTOR_DEFAULT(ARX_NPC_AUDIBLE_FACTOR_MIN);
-const float ARX_NPC_AUDIBLE_FACTOR_RANGE(ARX_NPC_AUDIBLE_FACTOR_MAX - ARX_NPC_AUDIBLE_FACTOR_MIN);
-const float ARX_NPC_AUDIBLE_PRESENCE_DEFAULT(1.0F);
+const float ARX_NPC_AUDIBLE_VOLUME_MIN = 0.94f;
+const float ARX_NPC_AUDIBLE_VOLUME_MAX = 1.f;
+const float ARX_NPC_AUDIBLE_VOLUME_DEFAULT = ARX_NPC_AUDIBLE_VOLUME_MAX;
+const float ARX_NPC_AUDIBLE_VOLUME_RANGE = ARX_NPC_AUDIBLE_VOLUME_MAX - ARX_NPC_AUDIBLE_VOLUME_MIN;
+const float ARX_NPC_AUDIBLE_FACTOR_MIN = 1.f;
+const float ARX_NPC_AUDIBLE_FACTOR_MAX = 4.5f;
+const float ARX_NPC_AUDIBLE_FACTOR_DEFAULT = ARX_NPC_AUDIBLE_FACTOR_MIN;
+const float ARX_NPC_AUDIBLE_FACTOR_RANGE = ARX_NPC_AUDIBLE_FACTOR_MAX - ARX_NPC_AUDIBLE_FACTOR_MIN;
+const float ARX_NPC_AUDIBLE_PRESENCE_DEFAULT = 1.f;
 
 void ARX_NPC_Revive(Entity * io, bool init);
 bool ARX_NPC_SetStat(Entity & io, const std::string & statname, float value);
 bool ARX_NPC_LaunchPathfind(Entity * io, EntityHandle target);
-bool IsDeadNPC(Entity * io);
+bool IsDeadNPC(const Entity & io);
 
 void FaceTarget2(Entity * io);
 void ARX_NPC_Behaviour_Stack(Entity * io);
@@ -256,9 +256,9 @@ void ARX_NPC_NeedStepSound(Entity * io, const Vec3f & pos,
                            float power = ARX_NPC_AUDIBLE_FACTOR_DEFAULT);
 
 Entity * ARX_NPC_GetFirstNPCInSight(Entity * ioo);
-void CheckNPC(Entity * io);
-void ManageIgnition(Entity * io);
-void ManageIgnition_2(Entity * io);
+void CheckNPC(Entity & io);
+void ManageIgnition(Entity & io);
+void ManageIgnition_2(Entity & io);
 
 void ARX_NPC_Kill_Spell_Launch(Entity * io);
 

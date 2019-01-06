@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 Arx Libertatis Team (see the AUTHORS file)
+ * Copyright 2014-2018 Arx Libertatis Team (see the AUTHORS file)
  *
  * This file is part of Arx Libertatis.
  *
@@ -120,7 +120,7 @@ void SummonCreatureSpell::End() {
 		
 		if(io->scriptload && (io->ioflags & IO_NOSAVE)) {
 			
-			AddRandomSmoke(io, 100);
+			AddRandomSmoke(*io, 100);
 			Vec3f posi = io->pos;
 			posi.y -= 100.f;
 			MakeCoolFx(posi);

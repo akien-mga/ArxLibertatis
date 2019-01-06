@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2016 Arx Libertatis Team (see the AUTHORS file)
+ * Copyright 2015-2018 Arx Libertatis Team (see the AUTHORS file)
  *
  * This file is part of Arx Libertatis.
  *
@@ -48,10 +48,7 @@ void PanelWidget::add(Widget * widget) {
 	if(m_children.size() == 1) {
 		m_rect = widget->m_rect;
 	} else {
-		m_rect.left = std::min(m_rect.left, widget->m_rect.left);
-		m_rect.top = std::min(m_rect.top, widget->m_rect.top);
-		m_rect.right = std::max(m_rect.right, widget->m_rect.right);
-		m_rect.bottom = std::max(m_rect.bottom, widget->m_rect.bottom);
+		m_rect = m_rect | widget->m_rect;
 	}
 	
 	widget->move(Vec2f(0, ((m_rect.height() - widget->m_rect.bottom) / 2)));

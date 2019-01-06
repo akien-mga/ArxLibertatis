@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 Arx Libertatis Team (see the AUTHORS file)
+ * Copyright 2014-2018 Arx Libertatis Team (see the AUTHORS file)
  *
  * This file is part of Arx Libertatis.
  *
@@ -120,7 +120,7 @@ void RiseDeadSpell::End() {
 		ARX_SOUND_PlaySFX(g_snd.SPELL_ELECTRIC, &entity->pos);
 		
 		if(entity->scriptload && (entity->ioflags & IO_NOSAVE)) {
-			AddRandomSmoke(entity, 100);
+			AddRandomSmoke(*entity, 100);
 			Vec3f posi = entity->pos;
 			posi.y -= 100.f;
 			MakeCoolFx(posi);

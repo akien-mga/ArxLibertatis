@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2015 Arx Libertatis Team (see the AUTHORS file)
+ * Copyright 2014-2018 Arx Libertatis Team (see the AUTHORS file)
  *
  * This file is part of Arx Libertatis.
  *
@@ -287,7 +287,7 @@ void ProfilerView::setData(ThreadsData * threadsData) {
 			const char * unitName = humanReadableTime(duration);
 			
 			// Round to get 2 decimals of precision
-			duration = (int)(duration * 100);
+			duration = int(duration * 100);
 			duration /= 100;
 			
 			QRectF rect(qreal(it->startTime - firstTimestamp), offset, qreal(it->endTime - it->startTime), ITEM_HEIGHT);

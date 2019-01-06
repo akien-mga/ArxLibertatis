@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2016 Arx Libertatis Team (see the AUTHORS file)
+ * Copyright 2011-2018 Arx Libertatis Team (see the AUTHORS file)
  *
  * This file is part of Arx Libertatis.
  *
@@ -22,11 +22,12 @@
 
 #include <SDL.h>
 
+#include "platform/Platform.h"
 #include "window/RenderWindow.h"
 
 class SDL2InputBackend;
 
-class SDL2Window : public RenderWindow {
+class SDL2Window arx_final : public RenderWindow {
 	
 public:
 	
@@ -52,6 +53,8 @@ public:
 	std::string getClipboardText();
 	void setClipboardText(const std::string & text);
 	
+	void allowScreensaver(bool allowed);
+	
 	InputBackend * getInputBackend();
 	
 private:
@@ -71,6 +74,7 @@ private:
 	SDL2InputBackend * m_input;
 	
 	MinimizeSetting m_minimizeOnFocusLost;
+	MinimizeSetting m_allowScreensaver;
 	
 	float m_gamma;
 	bool m_gammaOverridden;

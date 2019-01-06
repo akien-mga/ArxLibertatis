@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2017 Arx Libertatis Team (see the AUTHORS file)
+ * Copyright 2011-2019 Arx Libertatis Team (see the AUTHORS file)
  *
  * This file is part of Arx Libertatis.
  *
@@ -193,8 +193,8 @@ void AddFlare(const Vec2f & pos, float sm, short typ, Entity * io, bool bookDraw
 			flare.p += angleToVectorXZ(io->angle.getYaw() + vx) * 100.f;
 			flare.p.y += std::sin(glm::radians(MAKEANGLE(io->angle.getPitch() + vy))) * 100.f - 150.f;
 		} else {
-			Vec3f screenPos(1.0f  * (pos.x - float(g_size.width()  / 2)) * 156.f / (640.f * g_sizeRatio.y),
-			                0.75f * (pos.y - float(g_size.height() / 2)) * 156.f / (480.f * g_sizeRatio.y),
+			Vec3f screenPos(1.0f  * (pos.x - float(g_size.center().x)) * 156.f / (640.f * g_sizeRatio.y),
+			                0.75f * (pos.y - float(g_size.center().y)) * 156.f / (480.f * g_sizeRatio.y),
 			                75.f);
 			flare.p = Vec3f(glm::inverse(g_preparedCamera.m_worldToView) * Vec4f(screenPos, 1.0f));
 		}

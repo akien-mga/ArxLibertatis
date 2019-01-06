@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2016 Arx Libertatis Team (see the AUTHORS file)
+ * Copyright 2011-2019 Arx Libertatis Team (see the AUTHORS file)
  *
  * This file is part of Arx Libertatis.
  *
@@ -64,6 +64,8 @@ ZeniMax Media Inc., Suite 120, Rockville, Maryland 20850 USA.
 #include "math/Types.h"
 #include "math/Random.h"
 #include "math/Vector.h"
+
+#include "platform/Platform.h"
 
 #include "util/Flags.h"
 
@@ -223,7 +225,7 @@ namespace audio {
 
 static const PlatformDuration KEY_CONTINUE = PlatformDurationUs(std::numeric_limits<s64>::max());
 
-struct Ambiance::Track : public Source::Callback {
+struct Ambiance::Track arx_final : public Source::Callback {
 	
 	enum Flag {
 		POSITION   = 0x00000001,
@@ -518,7 +520,7 @@ static aalError loadString(PakFileHandle * file, std::string & str) {
 	aalError ret = AAL_OK;
 	char c;
 	while(file->read(&c, 1) ? c : (ret = AAL_ERROR_FILEIO, false)) {
-		oss << (char)std::tolower(c);
+		oss << char(std::tolower(c));
 	}
 	
 	str = oss.str();

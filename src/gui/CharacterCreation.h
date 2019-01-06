@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Arx Libertatis Team (see the AUTHORS file)
+ * Copyright 2017-2018 Arx Libertatis Team (see the AUTHORS file)
  *
  * This file is part of Arx Libertatis.
  *
@@ -41,6 +41,10 @@ private:
 	std::string str_button_quickgen;
 	std::string str_button_skin;
 	std::string str_button_done;
+	
+	std::string m_desc_quickgen;
+	std::string m_desc_skin;
+	std::string m_desc_done;
 	
 	s8 m_cheatSkinButtonClickCount;
 	char m_cheatQuickGenButtonClickCount;

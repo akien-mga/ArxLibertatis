@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2017 Arx Libertatis Team (see the AUTHORS file)
+ * Copyright 2011-2019 Arx Libertatis Team (see the AUTHORS file)
  *
  * This file is part of Arx Libertatis.
  *
@@ -302,7 +302,7 @@ bool DanaeLoadLevel(const res::path & file, bool loadEntities) {
 	
 	float increment = 0;
 	if(dlh.nb_inter > 0) {
-		increment = (60.f / (float)dlh.nb_inter);
+		increment = 60.f / float(dlh.nb_inter);
 	} else {
 		progressBarAdvance(60);
 		LoadLevelScreen();
@@ -416,7 +416,7 @@ bool DanaeLoadLevel(const res::path & file, bool loadEntities) {
 			const DANAE_LS_PATHWAYS * dlpw = reinterpret_cast<const DANAE_LS_PATHWAYS *>(dat + pos);
 			pos += sizeof(DANAE_LS_PATHWAYS);
 			
-			ap->pathways[j].flag = (PathwayType)dlpw->flag; // TODO save/load enum
+			ap->pathways[j].flag = PathwayType(dlpw->flag); // TODO save/load enum
 			ap->pathways[j].rpos = dlpw->rpos.toVec3();
 			ap->pathways[j]._time = GameDurationMs(dlpw->time); // TODO save/load time
 		}

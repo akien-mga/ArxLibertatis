@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2016 Arx Libertatis Team (see the AUTHORS file)
+ * Copyright 2011-2019 Arx Libertatis Team (see the AUTHORS file)
  *
  * This file is part of Arx Libertatis.
  *
@@ -25,7 +25,6 @@
 #include <limits>
 
 #include "graphics/image/stb_image.h"
-#include "graphics/image/stb_image_write.h"
 
 #include "graphics/Math.h"
 #include "io/fs/FilePath.h"
@@ -302,8 +301,8 @@ bool Image::copy(const Image & srcImage, size_t dstX, size_t dstY,
 	return true;
 }
 
-bool Image::copy(const Image & srcImage, size_t destX, size_t destY) {
-	return copy(srcImage, destX, destY, 0, 0, srcImage.getWidth(), srcImage.getHeight());
+bool Image::copy(const Image & srcImage, size_t dstX, size_t dstY) {
+	return copy(srcImage, dstX, dstY, 0, 0, srcImage.getWidth(), srcImage.getHeight());
 }
 
 void Image::applyGamma(float gamma) {
@@ -359,13 +358,13 @@ void Image::applyGamma(float gamma) {
 			for(size_t j = 0; j < numComponents; j++) {
 				// normalize the components by max component value
 				components[j] *= reciprocal;
-				data[j] = (unsigned char)components[j];
+				data[j] = static_cast<unsigned char>(components[j]);
 			}
 			
 		} else {
 			
 			for(size_t j = 0; j < numComponents; j++) {
-				data[j] = (unsigned char)components[j];
+				data[j] = static_cast<unsigned char>(components[j]);
 			}
 			
 		}
@@ -624,23 +623,6 @@ void Image::flipY() {
 	
 	delete[] swapTmp;
 	
-}
-
-bool Image::save(const fs::path & filename) const {
-	
-	if(getFormat() >= Format_Unknown) {
-		return false;
-	}
-	
-	int ret = 0;
-	if(filename.ext() == ".bmp") {
-		ret = stbi::stbi_write_bmp(filename.string().c_str(), int(getWidth()), int(getHeight()),
-		                           int(getNumChannels()), getData());
-	} else {
-		LogError << "Unsupported file extension: " << filename.ext();
-	}
-	
-	return ret != 0;
 }
 
 std::ostream & operator<<(std::ostream & os, Image::Format format) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2013 Arx Libertatis Team (see the AUTHORS file)
+ * Copyright 2011-2018 Arx Libertatis Team (see the AUTHORS file)
  *
  * This file is part of Arx Libertatis.
  *
@@ -60,7 +60,7 @@ protected:
 			Node();
 			~Node();
 			
-			Node * insertImage(const Image & pImg);
+			Node * insertImage(const Image & image);
 			
 			Node * children[2];
 			Rect rect;
@@ -70,7 +70,7 @@ protected:
 		explicit TextureTree(size_t textureSize, Image::Format textureFormat);
 		~TextureTree();
 		
-		Node * insertImage(const Image & pImg);
+		Node * insertImage(const Image & image);
 		
 	private:
 		

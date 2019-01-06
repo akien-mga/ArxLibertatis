@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2016 Arx Libertatis Team (see the AUTHORS file)
+ * Copyright 2011-2018 Arx Libertatis Team (see the AUTHORS file)
  *
  * This file is part of Arx Libertatis.
  *
@@ -69,7 +69,7 @@ struct Projectile {
 void ARX_THROWN_OBJECT_Throw(EntityHandle source, const Vec3f & position, const Vec3f & vect, const glm::quat & quat, float velocity, float damages, float poisonous);
 
 void ARX_THROWN_OBJECT_KillAll();
-void ARX_THROWN_OBJECT_Manage(GameDuration time_offset);
+void ARX_THROWN_OBJECT_Manage(GameDuration timeDelta);
 void ARX_THROWN_OBJECT_Render();
 
 #endif // ARX_PHYSICS_PROJECTILE_H

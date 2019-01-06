@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2016 Arx Libertatis Team (see the AUTHORS file)
+ * Copyright 2011-2018 Arx Libertatis Team (see the AUTHORS file)
  *
  * This file is part of Arx Libertatis.
  *
@@ -31,9 +31,10 @@
 #include "input/TextInput.h"
 #include "math/Vector.h"
 #include "math/Types.h"
+#include "platform/Platform.h"
 #include "window/SDL2Window.h"
 
-class SDL2InputBackend : public InputBackend {
+class SDL2InputBackend arx_final : public InputBackend {
 	
 public:
 	
@@ -49,7 +50,7 @@ public:
 	void getMouseButtonClickCount(int buttonId, int & numClick, int & numUnClick) const;
 	
 	// Keyboard
-	bool isKeyboardKeyPressed(int dikkey) const;
+	bool isKeyboardKeyPressed(int keyId) const;
 	void startTextInput(const Rect & box, TextInputHandler * handler);
 	void stopTextInput();
 	std::string getKeyName(Keyboard::Key key) const;

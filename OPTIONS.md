@@ -5,14 +5,14 @@ This file describes additional build options that are recognized by the CMakeLis
 
 | Option                | Windows default                                        |
 |---------------------- | ------------------------------------------------------ |
-| `USER_DIR_PREFIXES`   | ^1                                                     |
+| `USER_DIR_PREFIXES`   | ¹                                                      |
 | `USER_DIR`            | `Arx Libertatis`                                       |
 | `CONFIG_DIR_PREFIXES` |                                                        |
 | `CONFIG_DIR`          |                                                        |
 | `DATA_DIR_PREFIXES`   |                                                        |
 | `DATA_DIR`            |                                                        |
 
-| Option                | macOS default                                            |
+| Option                | macOS default                                          |
 |---------------------- | ------------------------------------------------------ |
 | `USER_DIR_PREFIXES`   | `$HOME/Library/Application Support`                    |
 | `USER_DIR`            | `ArxLibertatis`                                        |
@@ -23,7 +23,7 @@ This file describes additional build options that are recognized by the CMakeLis
 
 | Option                |  Linux / BSD / other default                           |
 |---------------------- | ------------------------------------------------------ |
-| `USER_DIR_PREFIXES`   | `${XDG_DATA_HOME:-$HOME/.local/share}` ^2              |
+| `USER_DIR_PREFIXES`   | `${XDG_DATA_HOME:-$HOME/.local/share}`²                |
 | `USER_DIR`            | `arx`                                                  |
 | `CONFIG_DIR_PREFIXES` | `${XDG_CONFIG_HOME:-$HOME/.config}`                    |
 | `CONFIG_DIR`          | `arx`                                                  |
@@ -50,7 +50,12 @@ Arx Libertatis adjust the compiler flags to provide an optimal configuration for
 
 * `SET_WARNING_FLAGS` (default: `ON`): Adjust compiler warning flags. This should not affect the produced binaries but is useful to catch potential problems.
 * `SET_OPTIMIZATION_FLAGS` (default: `ON`): Adjust compiler optimization flags. For non-debug builds the only thing this does is instruct the linker to only link against libraries that are actually needed.
+* `FASTLINK` (default: `OFF`¹: Optimize for link speed
+* `USE_LTO` (default: `ON`²: Use link-time code generation
 * `CXX_STD_VERSION` (default: `2017`): Maximum C++ standard version to enable.
+
+1. Enabled automatically if `DEVELOPER` is enabled.
+2. Disabled automatically if `SET_OPTIMIZATION_FLAGS` is disabled or `FASTLINK` is enabled.
 
 ### Static linking
 
@@ -89,11 +94,11 @@ The following options can be used to customize where `make install` puts the var
 By default, optional components will be automatically disabled if their dependencies could not be found. This might be undesirable in some situations, so the following option can be used to change this behavior:
 
 * `STRICT_USE` (default: OFF): Abort the configure step if one of the dependencies enabled with a `USE_*` configuration variable could not be found or if one of the components enabled with a `BUILD_*`configuration variable has missing dependencies. As most dependencies are enabled by default, you may need to explicitly disable some of them. Windows-specific dependencies are still automatically disabled on non-Windows systems.
-* `USE_OPENGL` (default: ON): Build the OpenGL renderer backend^1
-* `USE_OPENAL` (default: ON): Build the OpenAL audio backend^2
-* `WITH_OPENGL` (default: *not set*): Select the OpenGL wrangler to use: `epoxy` or `glew`. If not set, we will try to use either, preferring SDL `epoxy`. ^3
-* `WITH_SDL` (default: *not set*): Select the SDL version to use: 1 or 2. If not set, we will try to use either version, preferring SDL 2. ^3
-* `WITH_QT` (default: *not set*): Select the Qt version to use: 4 or 5. If not set, we will try to use either version, preferring Qt 5. Ignored if `BUILD_CRASHREPORTER` is disabled. ^3
+* `USE_OPENGL` (default: ON): Build the OpenGL renderer backend¹
+* `USE_OPENAL` (default: ON): Build the OpenAL audio backend²
+* `WITH_OPENGL` (default: *not set*): Select the OpenGL wrangler to use: `epoxy` or `glew`. If not set, we will try to use either, preferring SDL `epoxy`. ³
+* `WITH_SDL` (default: *not set*): Select the SDL version to use: 1 or 2. If not set, we will try to use either version, preferring SDL 2. ³
+* `WITH_QT` (default: *not set*): Select the Qt version to use: 4 or 5. If not set, we will try to use either version, preferring Qt 5. Ignored if `BUILD_CRASHREPORTER` is disabled. ³
 * `USE_WINHTTP` (default: ON): Use the native WinHTTP API instead of CURL on Windows.
 * `USE_NATIVE_FS` (default: ON): Use the native filesystem backend (POSIX / Win32) if available and not boost::filesystem.
 
@@ -104,13 +109,13 @@ By default, optional components will be automatically disabled if their dependen
 ### Icons
 
 * `ICON_TYPE` (default: *platform specific*): Type(s) of icons to generate and install. Valid options are:
- * `ico` Windows .ico files (linked into the appropriate executables) [default on Windows]
- * `icns` macOS .icns files (installed under `ICONDIR`) [default on macOS]
- * `iconset` Themable .png icon sets (installed in a `${size}x${size}/apps/${name}.png` hierarchy under `ICONTHEMEDIR`) [default on Linux and other systems]
- * `png` Portable .png  icons (installed under `ICONDIR`)
- * `overview` Icon size comparison montage (not installed)
- * `all` Generate all possible icon types
- * `none` Don't generate any icons
+  * `ico` Windows .ico files (linked into the appropriate executables) [default on Windows]
+  * `icns` macOS .icns files (installed under `ICONDIR`) [default on macOS]
+  * `iconset` Themable .png icon sets (installed in a `${size}x${size}/apps/${name}.png` hierarchy under `ICONTHEMEDIR`) [default on Linux and other systems]
+  * `png` Portable .png  icons (installed under `ICONDIR`)
+  * `overview` Icon size comparison montage (not installed)
+  * `all` Generate all possible icon types
+  * `none` Don't generate any icons
 
 * `DATA_FILES` (default: *not set*): Locations to search for pre-built data files. This is only useful when building git checkouts as release and development snapshot tarballs already include those files in the source tree. See the *Git Build Dependencies* section in README.md.
 * `OPTIMIZE_ICONS` (default: ON): Optimize the compression of generated PNG files using OptiPNG. This is only useful when building git checkouts as release and development snapshot tarballs already include pre-built images that this option doesn't apply to.

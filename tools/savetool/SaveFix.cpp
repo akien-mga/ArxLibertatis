@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2016 Arx Libertatis Team (see the AUTHORS file)
+ * Copyright 2011-2018 Arx Libertatis Team (see the AUTHORS file)
  *
  * This file is part of Arx Libertatis.
  *
@@ -60,7 +60,7 @@ static void skip_script_save(const char * dat, size_t & pos) {
 		avs = reinterpret_cast<const ARX_CHANGELEVEL_VARIABLE_SAVE *>(dat + pos);
 		pos += sizeof(ARX_CHANGELEVEL_VARIABLE_SAVE);
 		if(avs->type == TYPE_L_TEXT || (avs->type != TYPE_L_LONG && avs->type != TYPE_L_FLOAT && (avs->name[0] == '$' || avs->name[0] == '\xA3'))) {
-			pos += (size_t)avs->fval;
+			pos += size_t(avs->fval);
 		}
 	}
 }

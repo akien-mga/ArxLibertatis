@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2016 Arx Libertatis Team (see the AUTHORS file)
+ * Copyright 2011-2018 Arx Libertatis Team (see the AUTHORS file)
  *
  * This file is part of Arx Libertatis.
  *
@@ -198,7 +198,7 @@ public:
 		DebugScript(' ' << options << " \"" << text << '"');
 		
 		if(!text.empty() && text[0] == '[') {
-			text = getLocalised(loadUnlocalized(text), "Not Found");
+			text = getLocalised(loadUnlocalized(text));
 		}
 		
 		notification_add(text);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2014 Arx Libertatis Team (see the AUTHORS file)
+ * Copyright 2011-2018 Arx Libertatis Team (see the AUTHORS file)
  *
  * This file is part of Arx Libertatis.
  *
@@ -19,12 +19,14 @@
 
 #include "core/Localisation.h"
 
+#include <map>
 #include <stddef.h>
 #include <sstream>
 #include <cstdlib>
 #include <iterator>
 
 #include <boost/algorithm/string/predicate.hpp>
+#include <boost/foreach.hpp>
 
 #include "core/Config.h"
 
@@ -107,6 +109,67 @@ PakFile * autodetectLanguage() {
 	return localisation;
 }
 
+void loadLocalisation(PakDirectory * dir, const std::string & name) {
+	
+	PakFile * file = dir->getFile(name);
+	arx_assert(file);
+	
+	std::string buffer = file->read();
+	if(buffer.empty()) {
+		LogWarning << "Error reading localisation file localisation/" << name;
+		return;
+	}
+	
+	if(buffer.size() >= 2 && buffer[0] == '\xFF' && buffer[1] == '\xFE') {
+		LogWarning << "UTF16le character encoding is unsupported for new localizations "
+		              "please use UTF8 for file localisation/" << name;
+		return;
+	}
+	
+	LogInfo << "Loading: " << name;
+	
+	std::istringstream iss(buffer);
+	if(!g_localisation.read(iss, true)) {
+		LogWarning << "Error parsing localisation file localisation/" << name;
+	}
+}
+
+void loadLocalisations() {
+	
+	const std::string suffix = ".ini";
+	const std::string fallbackPrefix = "xtext_english_";
+	const std::string localizedPrefix = "xtext_" + config.language + "_";
+	
+	typedef std::map<std::string, bool> LocalizationFiles;
+	
+	LocalizationFiles localizationFiles;
+	
+	PakDirectory * dir = g_resources->getDirectory("localisation");
+	PakDirectory::files_iterator fileIter = dir->files_begin();
+	
+	for(; fileIter != dir->files_end(); ++fileIter) {
+		const std::string & name = fileIter->first;
+		
+		if(boost::ends_with(name, suffix)) {
+			if(boost::starts_with(name, fallbackPrefix)) {
+				localizationFiles[name.substr(fallbackPrefix.length())];
+			}
+			if(boost::starts_with(name, localizedPrefix)) {
+				localizationFiles[name.substr(localizedPrefix.length())] = true;
+			}
+		}
+	}
+	
+	BOOST_FOREACH(const LocalizationFiles::value_type & i, localizationFiles) {
+		
+		loadLocalisation(dir, fallbackPrefix + i.first);
+		
+		if(i.second) {
+			loadLocalisation(dir, localizedPrefix + i.first);
+		}
+	}
+}
+
 } // anonymous namespace
 
 bool initLocalisation() {
@@ -155,17 +218,26 @@ bool initLocalisation() {
 	if(!buffer.empty()) {
 		LogDebug("Preparing to parse localisation file");
 		std::istringstream iss(buffer);
-		if(!::g_localisation.read(iss)) {
+		if(!g_localisation.read(iss)) {
 			LogWarning << "Error parsing localisation file localisation/utext_"
 			           << config.language << ".ini";
 		}
 	}
+	
+	loadLocalisations();
 	
 	return true;
 }
 
 long getLocalisedKeyCount(const std::string & sectionname) {
 	return g_localisation.getKeyCount(sectionname);
+}
+
+std::string getLocalised(const std::string & name) {
+	
+	arx_assert(name.find_first_of("ABCDEFGHIJKLMNOPQRSTUVWXYZ[]") == std::string::npos);
+	
+	return g_localisation.getKey(name, std::string(), name);
 }
 
 std::string getLocalised(const std::string & name, const std::string & default_value) {

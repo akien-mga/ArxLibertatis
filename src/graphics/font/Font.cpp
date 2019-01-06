@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2016 Arx Libertatis Team (see the AUTHORS file)
+ * Copyright 2011-2018 Arx Libertatis Team (see the AUTHORS file)
  *
  * This file is part of Arx Libertatis.
  *
@@ -403,7 +403,7 @@ Font::text_iterator Font::getPosition(text_iterator start, text_iterator end, in
 	
 	int last = 0;
 	
-	for(text_iterator p = start; ; p++) {
+	for(text_iterator p = start; ; ++p) {
 		if(p + 1 != end && util::UTF8::isContinuationByte(*p)) {
 			continue;
 		}

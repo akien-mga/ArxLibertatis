@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2017 Arx Libertatis Team (see the AUTHORS file)
+ * Copyright 2011-2019 Arx Libertatis Team (see the AUTHORS file)
  *
  * This file is part of Arx Libertatis.
  *
@@ -935,7 +935,7 @@ void ArxGame::managePlayerControls() {
 	if(GInput->actionPressed(CONTROLS_CUST_MAGICMODE)) {
 		if(!(player.m_currentMovement & PLAYER_CROUCH) && !BLOCK_PLAYER_CONTROLS && ARXmenu.mode() == Mode_InGame) {
 			if(!ARX_SOUND_IsPlaying(player.magic_ambient)) {
-				player.magic_ambient = ARX_SOUND_PlaySFX_loop(g_snd.MAGIC_AMBIENT_LOOP, NULL, 1.0F);
+				player.magic_ambient = ARX_SOUND_PlaySFX_loop(g_snd.MAGIC_AMBIENT_LOOP, NULL, 1.f);
 			}
 		}
 	} else {
@@ -1663,14 +1663,14 @@ void ArxGame::manageEntityDescription() {
 		}
 		
 		if(temp->poisonous > 0 && temp->poisonous_count != 0) {
-			std::string Text = getLocalised("description_poisoned", "error");
+			std::string Text = getLocalised("description_poisoned");
 			std::stringstream ss;
-			ss << " (" << Text << " " << (int)temp->poisonous << ")";
+			ss << " (" << Text << " " << temp->poisonous << ")";
 			description += ss.str();
 		}
 		
 		if((temp->ioflags & IO_ITEM) && temp->durability < 100.f) {
-			std::string Text = getLocalised("description_durability", "error");
+			std::string Text = getLocalised("description_durability");
 			std::stringstream ss;
 			ss << " " << Text << " " << std::fixed << std::setw(3) << std::setprecision(0) << temp->durability << "/" << temp->max_durability;
 			description += ss.str();
@@ -1714,17 +1714,14 @@ void ArxGame::manageEditorControls() {
 	}
 	
 	if(eeMousePressed1()) {
-		static Vec2f dragThreshold(0.f);
-		
+		static float s_dragDistance = 0.f;
 		if(eeMouseDown1()) {
-			
-			STARTDRAG = DANAEMouse;
+			g_dragStartPos = DANAEMouse;
 			DRAGGING = false;
-			dragThreshold = Vec2f(0.f);
-		} else {
-			dragThreshold += GInput->getRelativeMouseMovement();
-			if((std::abs(DANAEMouse.x - STARTDRAG.x) > 2 && std::abs(DANAEMouse.y - STARTDRAG.y) > 2)
-			   || (std::abs(dragThreshold.x) > 0.28f || std::abs(dragThreshold.y) > 0.28f)) {
+			s_dragDistance = 0.f;
+		} else if(!DRAGGING) {
+			s_dragDistance += 5.f * glm::length(GInput->getRelativeMouseMovement());
+			if(s_dragDistance + glm::length(Vec2f(DANAEMouse - g_dragStartPos)) > 5.f) {
 				DRAGGING = true;
 			}
 		}
@@ -1999,11 +1996,11 @@ void ArxGame::manageEditorControls() {
 		   && !GInput->actionPressed(CONTROLS_CUST_MAGICMODE)
 		   && !DRAGINTER
 		) {
-			if(!TakeFromInventory(STARTDRAG)) {
+			if(!TakeFromInventory(g_dragStartPos)) {
 				
 				bool bOk = false;
 				
-				Entity * io = InterClick(STARTDRAG);
+				Entity * io = InterClick(g_dragStartPos);
 				if(io && !BLOCK_PLAYER_CONTROLS) {
 					if(g_cursorOverBook) {
 						if(io->show == SHOW_FLAG_ON_PLAYER)

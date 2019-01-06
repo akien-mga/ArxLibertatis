@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2017 Arx Libertatis Team (see the AUTHORS file)
+ * Copyright 2011-2018 Arx Libertatis Team (see the AUTHORS file)
  *
  * This file is part of Arx Libertatis.
  *
@@ -71,12 +71,12 @@ void ANCHOR_BLOCK_Clear() {
 	}
 	
 	BOOST_FOREACH(ANCHOR_DATA & ad, eb->m_anchors) {
-		ad.flags &= ~ANCHOR_FLAG_BLOCKED;
+		ad.blocked = false;
 	}
 	
 }
 
-void ANCHOR_BLOCK_By_IO(Entity * io, long status) {
+void ANCHOR_BLOCK_By_IO(Entity * io, bool blocked) {
 	
 	BackgroundData * eb = ACTIVEBKG;
 	
@@ -110,12 +110,13 @@ void ANCHOR_BLOCK_By_IO(Entity * io, long status) {
 				}
 
 				if(PointIn2DPolyXZ(&ep, ad.pos.x, ad.pos.z)) {
-					if(status)
-						ad.flags |= ANCHOR_FLAG_BLOCKED;
-					else
-						ad.flags &= ~ANCHOR_FLAG_BLOCKED;
+					ad.blocked = blocked;
 				}
+				
 			}
+			
 		}
+		
 	}
+	
 }

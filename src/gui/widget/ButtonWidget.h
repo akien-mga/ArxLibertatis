@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2016 Arx Libertatis Team (see the AUTHORS file)
+ * Copyright 2015-2018 Arx Libertatis Team (see the AUTHORS file)
  *
  * This file is part of Arx Libertatis.
  *
@@ -22,12 +22,13 @@
 
 #include "gui/widget/TextWidget.h"
 #include "gui/widget/Widget.h"
+#include "platform/Platform.h"
 
 class TextureContainer;
 
 namespace res { class path; }
 
-class ButtonWidget: public Widget {
+class ButtonWidget arx_final : public Widget {
 	
 public:
 	

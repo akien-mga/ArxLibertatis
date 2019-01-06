@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2016 Arx Libertatis Team (see the AUTHORS file)
+ * Copyright 2011-2018 Arx Libertatis Team (see the AUTHORS file)
  *
  * This file is part of Arx Libertatis.
  *
@@ -128,7 +128,7 @@ public:
 	void setRawMouseInput(bool enabled);
 	
 	void setMouseSensitivity(int sensitivity);
-	void setMouseAcceleration(int acceletation);
+	void setMouseAcceleration(int acceleration);
 	void setInvertMouseY(bool invert);
 	
 	bool getMouseButton(int buttonId) const;

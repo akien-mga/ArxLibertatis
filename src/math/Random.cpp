@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2012 Arx Libertatis Team (see the AUTHORS file)
+ * Copyright 2011-2019 Arx Libertatis Team (see the AUTHORS file)
  *
  * This file is part of Arx Libertatis.
  *
@@ -28,7 +28,7 @@ void Random::seed() {
 		rng = new Generator;
 	}
 	
-	rng->seed((size_t)std::time(NULL));
+	rng->seed(size_t(std::time(NULL)));
 }
 
 void Random::seed(unsigned int seedVal) {

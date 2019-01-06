@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2017 Arx Libertatis Team (see the AUTHORS file)
+ * Copyright 2011-2019 Arx Libertatis Team (see the AUTHORS file)
  *
  * This file is part of Arx Libertatis.
  *
@@ -457,7 +457,7 @@ void CheckSetAnimOutOfTreatZone(Entity * io, AnimLayer & layer) {
 	
 	if(layer.cur_anim && !(io->gameFlags & GFLAG_ISINTREATZONE)
 	   && fartherThan(io->pos, g_camera->m_pos, 2500.f)) {
-		layer.ctime = layer.cur_anim->anims[layer.altidx_cur]->anim_time - AnimationDurationMs(1);
+		layer.ctime = layer.currentAltAnim()->anim_time - AnimationDurationMs(1);
 	}
 	
 }
@@ -1092,7 +1092,7 @@ void ARX_INTERACTIVE_TeleportBehindTarget(Entity * io) {
 	timer.count = 1;
 	
 	io->show = SHOW_FLAG_TELEPORTING;
-	AddRandomSmoke(io, 10);
+	AddRandomSmoke(*io, 10);
 	ARX_PARTICLES_Add_Smoke(io->pos, 3, 20);
 	io->requestRoomUpdate = true;
 	io->room = -1;
@@ -1686,8 +1686,8 @@ Entity * AddItem(const res::path & classPath_, EntityInstance instance, AddInter
 	io->pos = player.pos;
 	io->pos += angleToVectorXZ(player.angle.getYaw()) * 140.f;
 	
-	io->lastpos.x = io->initpos.x = (float)((long)(io->pos.x / 20)) * 20.f;
-	io->lastpos.z = io->initpos.z = (float)((long)(io->pos.z / 20)) * 20.f;
+	io->lastpos.x = io->initpos.x = std::floor(io->pos.x / 20.f) * 20.f;
+	io->lastpos.z = io->initpos.z = std::floor(io->pos.z / 20.f) * 20.f;
 
 	EERIEPOLY * ep;
 	ep = CheckInPoly(io->pos + Vec3f(0.f, -60.f, 0.f));
@@ -2084,10 +2084,11 @@ void UpdateCameras() {
 			io->_camdata->cam.m_pos = io->pos;
 
 			if(io->targetinfo != EntityHandle(TARGET_NONE)) {
+				
 				// Follows target
-				GetTargetPos(io, (unsigned long)io->_camdata->smoothing);
+				GetTargetPos(io, static_cast<unsigned long>(io->_camdata->smoothing));
 				io->target += io->_camdata->translatetarget;
-
+				
 				Vec3f target = io->target;
 				if(io->_camdata->lastinfovalid && io->_camdata->smoothing != 0.f) {
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 Arx Libertatis Team (see the AUTHORS file)
+ * Copyright 2014-2018 Arx Libertatis Team (see the AUTHORS file)
  *
  * This file is part of Arx Libertatis.
  *
@@ -119,7 +119,7 @@ void ARX_SPELLS_Precast_Check() {
 			}
 
 			if(layer1.cur_anim && layer1.cur_anim == entities.player()->anims[ANIM_CAST]) {
-				if(layer1.ctime + AnimationDurationMs(550) > layer1.cur_anim->anims[layer1.altidx_cur]->anim_time)
+				if(layer1.ctime + AnimationDurationMs(550) > layer1.currentAltAnim()->anim_time)
 				{
 					ARX_SPELLS_Launch(Precast[i].typ,
 					                  EntityHandle_Player,

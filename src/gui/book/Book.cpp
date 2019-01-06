@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2017 Arx Libertatis Team (see the AUTHORS file)
+ * Copyright 2015-2018 Arx Libertatis Team (see the AUTHORS file)
  *
  * This file is part of Arx Libertatis.
  *
@@ -1517,11 +1517,12 @@ void MapPage::drawMaps()
 
 void MapPage::drawLeftTabs() {
 	
-	long max_onglet = 7;
+	size_t max_onglet = 7;
 	
-	for(int i = 0; i <= max_onglet; i++) {
-		PlayerBookPage::manageLeftTabs(i, m_currentLevel);
+	for(size_t i = 0; i <= max_onglet; i++) {
+		PlayerBookPage::manageLeftTabs(long(i), m_currentLevel);
 	}
+	
 }
 
 void QuestBookPage::manage() {

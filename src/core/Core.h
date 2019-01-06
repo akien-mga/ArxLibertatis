@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2016 Arx Libertatis Team (see the AUTHORS file)
+ * Copyright 2011-2018 Arx Libertatis Team (see the AUTHORS file)
  *
  * This file is part of Arx Libertatis.
  *
@@ -71,7 +71,7 @@ extern EERIE_3DOBJ * cameraobj;
 extern EERIE_3DOBJ * markerobj;
 extern Vec2s DANAEMouse;
 extern Vec3f g_moveto;
-extern Vec2s STARTDRAG;
+extern Vec2s g_dragStartPos;
 extern EERIE_3DOBJ * GoldCoinsObj[MAX_GOLD_COINS_VISUALS];
 extern Entity * COMBINE;
 extern res::path LastLoadedScene;

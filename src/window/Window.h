@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2016 Arx Libertatis Team (see the AUTHORS file)
+ * Copyright 2011-2018 Arx Libertatis Team (see the AUTHORS file)
  *
  * This file is part of Arx Libertatis.
  *
@@ -105,6 +105,11 @@ public:
 	 */
 	virtual void setClipboardText(const std::string & text) = 0;
 	
+	/*!
+	 * Set if the user's screensaver is allowed to start.
+	 */
+	virtual void allowScreensaver(bool allowed) = 0;
+	
 	class Listener {
 		
 	public:
@@ -139,7 +144,7 @@ public:
 	
 	const Vec2i & getPosition() const { return m_position; }
 	const Vec2i & getSize() const { return m_size; }
-	const DisplayMode getDisplayMode() const { return DisplayMode(m_size); }
+	DisplayMode getDisplayMode() const { return DisplayMode(m_size); }
 	
 	bool isFullScreen() const { return m_fullscreen; }
 	

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2016 Arx Libertatis Team (see the AUTHORS file)
+ * Copyright 2011-2018 Arx Libertatis Team (see the AUTHORS file)
  *
  * This file is part of Arx Libertatis.
  *
@@ -167,11 +167,11 @@ public:
 	
 	Result execute(Context & context) {
 		
-		bool choice = context.getBool();
+		bool blocked = context.getBool();
 		
-		DebugScript(' ' << choice);
+		DebugScript(' ' << blocked);
 		
-		ANCHOR_BLOCK_By_IO(context.getEntity(), choice ? 1 : 0);
+		ANCHOR_BLOCK_By_IO(context.getEntity(), blocked);
 		
 		return Success;
 	}

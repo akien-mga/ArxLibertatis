@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2016 Arx Libertatis Team (see the AUTHORS file)
+ * Copyright 2011-2018 Arx Libertatis Team (see the AUTHORS file)
  *
  * This file is part of Arx Libertatis.
  *
@@ -234,12 +234,9 @@ void LegacyMathTest::inventorySizeTest() {
 	for(short j = 0; j < 100; ++j) {
 		Vec2i size(i, j);
 		Vec2s expected = inventorySizeFromTextureSize(size);
+		Vec2s oldResult = inventorySizeFromTextureSize_2(i, j);
 		
-		Vec2s result1 = inventorySizeFromTextureSize_1(i, j);
-		Vec2s result2 = inventorySizeFromTextureSize_2(i, j);
-		
-		CPPUNIT_ASSERT_EQUAL_MESSAGE(CPPUNIT_NS::assertion_traits<Vec2i>::toString(Vec2i(i, j)), expected, result1);
-		CPPUNIT_ASSERT_EQUAL_MESSAGE(CPPUNIT_NS::assertion_traits<Vec2i>::toString(Vec2i(i, j)), expected, result2);
+		CPPUNIT_ASSERT_EQUAL_MESSAGE(CPPUNIT_NS::assertion_traits<Vec2i>::toString(Vec2i(i, j)), expected, oldResult);
 	}
 }
 

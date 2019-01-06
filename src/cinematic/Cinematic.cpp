@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2017 Arx Libertatis Team (see the AUTHORS file)
+ * Copyright 2011-2019 Arx Libertatis Team (see the AUTHORS file)
  *
  * This file is part of Arx Libertatis.
  *
@@ -151,19 +151,18 @@ static float LightRND;
 
 static Color CalculLight(CinematicLight * light, Vec2f pos, Color col) {
 	
-	float ra = std::sqrt((light->pos.x - pos.x) * (light->pos.x - pos.x)
-	                     + (light->pos.y - pos.y) * (light->pos.y - pos.y));
+	float distance = glm::distance(Vec2f(light->pos), pos);
 	
-	if(ra > light->fallout) {
+	if(distance > light->fallout) {
 		return col * LightRND;
 	}
 	
-	Color3f color = light->color * (LightRND / 255.f);
-	if(ra >= light->fallin) {
-		color = color * ((light->fallout - ra) / (light->fallout - light->fallin));
+	float attenuation = LightRND / 255.f;
+	if(distance >= light->fallin) {
+		attenuation *= (light->fallout - distance) / (light->fallout - light->fallin);
 	}
 	
-	return Color(Color3f(col) + color);
+	return Color(Color3f(col) + light->color * attenuation, col.a);
 }
 
 static Vec3f TransformLocalVertex(const Vec2f & vbase, const Vec3f & LocalPos, float LocalSin, float LocalCos) {
@@ -346,7 +345,7 @@ void Cinematic::Render(PlatformDuration frameDuration) {
 	m_camera.angle.setRoll(angz);
 	PrepareCamera(&m_camera, g_size);
 	
-	int alpha = (int)(a * 255.f);
+	int alpha = int(a * 255.f);
 	
 	if(force ^ 1)
 		alpha = 255;
